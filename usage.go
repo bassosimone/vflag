@@ -116,15 +116,19 @@ func (ufs UsageFlagSet) HelpFlag() string {
 // PositionalArgumentsUsage returns the string to print for
 // the positional arguments (e.g. "", " [args]").
 func (ufs UsageFlagSet) PositionalArgumentsUsage() (output string) {
-	minArgs, maxArgs := ufs.Set.MinPositionalArgs, ufs.Set.MaxPositionalArgs
-	if minArgs >= 0 && maxArgs > 0 && maxArgs >= minArgs {
+	minArgs, maxArgs := max(0, ufs.Set.MinPositionalArgs), max(0, ufs.Set.MaxPositionalArgs)
+	if maxArgs >= minArgs && maxArgs > 0 {
 		output = ufs.Set.PositionalArgumentsUsage
 		switch {
-		case output == "" && minArgs == 0 && maxArgs == 1:
+		case output != "":
+			// nothing
+		case minArgs == 0 && maxArgs == 1:
+			output = "[arg]"
+		case minArgs == 1 && maxArgs == 1:
 			output = "arg"
-		case output == "" && minArgs == 0 && maxArgs > 1:
-			output = "[args...]"
-		case output == "" && minArgs > 0 && maxArgs > 1:
+		case minArgs == 0 && maxArgs > 1:
+			output = "[arg ...]"
+		default:
 			output = "arg [arg ...]"
 		}
 		output = " " + output
