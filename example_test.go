@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 
+	"github.com/bassosimone/flagparser"
 	"github.com/bassosimone/vflag"
 )
 
@@ -209,7 +210,14 @@ func ExampleFlagSet_digHelp() {
 	}
 
 	// Add the supported flags
+	//
+	// Note: to support dig flags we need:
+	//
+	// 1. to fix `+short` to be a `+` introduced long option
+	//
+	// 2. a custom [*vflag.Flag] for `+https`
 	var (
+		httpsFlag = ""
 		ipv4Flag  = false
 		ipv6Flag  = false
 		shortFlag = false
@@ -217,6 +225,24 @@ func ExampleFlagSet_digHelp() {
 	fset.BoolVar(&ipv4Flag, '4', "", "Enable using IPv4.")
 	fset.BoolVar(&ipv6Flag, '6', "", "Enable using IPv6.")
 	fset.AutoHelp('h', "", "Show this help message and exit.")
+	fset.AddFlag(&vflag.Flag{
+		Description: []string{
+			"Enable using DNS-over-HTTPS with optional URL path.",
+			"We use `/dns-query` if URL_PATH is omitted.",
+		},
+		LongArgumentName: "[=URL_PATH]",
+		LongName:         "https",
+		LongPrefix:       "+",
+		MakeOptions: func(fx *vflag.Flag) []*flagparser.Option {
+			return []*flagparser.Option{{
+				DefaultValue: "/dns-query",
+				Prefix:       fx.LongPrefix,
+				Name:         fx.LongName,
+				Type:         flagparser.OptionTypeStandaloneArgumentOptional,
+			}}
+		},
+		Value: vflag.NewValueString(&httpsFlag),
+	})
 	_fixLongOpt(fset.BoolVar(&shortFlag, 0, "short", "Write terse output."))
 
 	// Override Exit to transform it into a panic
@@ -252,6 +278,12 @@ func ExampleFlagSet_digHelp() {
 	//     -h
 	//
 	//         Show this help message and exit.
+	//
+	//     +https[=URL_PATH] (default: ``)
+	//
+	//         Enable using DNS-over-HTTPS with optional URL path.
+	//
+	//         We use `/dns-query` if URL_PATH is omitted.
 	//
 	//     +short[=BOOL] (default: `false`)
 	//
@@ -303,6 +335,79 @@ func ExampleFlagSet_digInvalidFlag() {
 	// Output:
 	// dig: unknown option: +tls
 	// hint: try `dig -h' for more help.
+}
+
+// This example shows a successful invocation of a dig-like tool.
+func ExampleFlagSet_digSuccess() {
+	// Create an empty flag set
+	fset := vflag.NewFlagSet("dig", vflag.ExitOnError)
+
+	// Edit the default values
+	fset.SetMinMaxPositionalArgs(0, 4)
+
+	// Modify the long prefix to use dig conventions
+	_fixLongOpt := func(fx *vflag.Flag) {
+		fx.LongPrefix = "+"
+	}
+
+	// Add the supported flags
+	//
+	// Note: to support dig flags we need:
+	//
+	// 1. to fix `+short` to be a `+` introduced long option
+	//
+	// 2. a custom [*vflag.Flag] for `+https`
+	var (
+		httpsFlag = ""
+		ipv4Flag  = false
+		ipv6Flag  = false
+		shortFlag = false
+	)
+	fset.BoolVar(&ipv4Flag, '4', "", "Enable using IPv4.")
+	fset.BoolVar(&ipv6Flag, '6', "", "Enable using IPv6.")
+	fset.AutoHelp('h', "", "Show this help message and exit.")
+	fset.AddFlag(&vflag.Flag{
+		Description: []string{
+			"Enable using DNS-over-HTTPS with optional URL path.",
+			"We use `/dns-query` if URL_PATH is omitted.",
+		},
+		LongArgumentName: "[=URL_PATH]",
+		LongName:         "https",
+		LongPrefix:       "+",
+		MakeOptions: func(fx *vflag.Flag) []*flagparser.Option {
+			return []*flagparser.Option{{
+				DefaultValue: "/dns-query",
+				Prefix:       fx.LongPrefix,
+				Name:         fx.LongName,
+				Type:         flagparser.OptionTypeStandaloneArgumentOptional,
+			}}
+		},
+		Value: vflag.NewValueString(&httpsFlag),
+	})
+	_fixLongOpt(fset.BoolVar(&shortFlag, 0, "short", "Write terse output."))
+
+	// Invoke with `-h`
+	fset.Parse([]string{"IN", "A", "@8.8.8.8", "+https", "www.example.com", "+short", "-4"})
+
+	// Print the parsed flags
+	fmt.Println("---")
+	fmt.Printf("httpsFlag: %v\n", httpsFlag)
+	fmt.Printf("ipv4Flag: %v\n", ipv4Flag)
+	fmt.Printf("ipv6Flag: %v\n", ipv6Flag)
+	fmt.Printf("shortFlag: %v\n", shortFlag)
+
+	// Print the positional arguments
+	fmt.Println("---")
+	fmt.Printf("positional arguments: %v\n", fset.Args())
+
+	// Output:
+	// ---
+	// httpsFlag: /dns-query
+	// ipv4Flag: true
+	// ipv6Flag: false
+	// shortFlag: true
+	// ---
+	// positional arguments: [IN A @8.8.8.8 www.example.com]
 }
 
 // This example shows how we print the usage for a tar-like tool.
