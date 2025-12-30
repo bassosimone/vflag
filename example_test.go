@@ -1,5 +1,8 @@
-// example_test.go - Examples
+//
 // SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Adapted from: https://github.com/bassosimone/clip/blob/v0.8.0/pkg/nflag/example_test.go
+//
 
 package vflag_test
 
