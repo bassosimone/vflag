@@ -7,7 +7,9 @@
 package vflag
 
 import (
+	"fmt"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -15,6 +17,10 @@ import (
 //
 // Construct using [NewValueBool], [NewValueInt], etc.
 type Value interface {
+	// Value implements [fmt.Stringer] to return a string
+	// representation of the current value.
+	fmt.Stringer
+
 	// Set sets the value of the flag.
 	//
 	// This method MAY be called multiple times if
@@ -35,6 +41,11 @@ func (v ValueAutoHelp) Set(value string) error {
 	}
 	_, err := strconv.ParseBool(value)
 	return err
+}
+
+// String implements [fmt.Stringer].
+func (v ValueAutoHelp) String() string {
+	return "false"
 }
 
 // ValueBool implements [Value] for bool.
@@ -64,6 +75,11 @@ func (v ValueBool) Set(value string) error {
 	return nil
 }
 
+// String implements [fmt.Stringer].
+func (v ValueBool) String() string {
+	return strconv.FormatBool(*v.vp)
+}
+
 // ValueDuration implements [Value] for [time.Duration].
 //
 // Construct using [NewValueDuration].
@@ -86,6 +102,11 @@ func (v ValueDuration) Set(value string) error {
 	}
 	*v.vp = parsed
 	return nil
+}
+
+// String implements [fmt.Stringer].
+func (v ValueDuration) String() string {
+	return v.vp.String()
 }
 
 // ValueFloat64 implements [Value] for float64.
@@ -112,6 +133,11 @@ func (v ValueFloat64) Set(value string) error {
 	return nil
 }
 
+// String implements [fmt.Stringer].
+func (v ValueFloat64) String() string {
+	return strconv.FormatFloat(*v.vp, 'g', -1, 64)
+}
+
 // ValueInt implements [Value] for int.
 //
 // Construct using [NewValueInt].
@@ -134,6 +160,11 @@ func (v ValueInt) Set(value string) error {
 	}
 	*v.vp = int(parsed)
 	return nil
+}
+
+// String implements [fmt.Stringer].
+func (v ValueInt) String() string {
+	return strconv.FormatInt(int64(*v.vp), 10)
 }
 
 // ValueInt8 implements [Value] for int8.
@@ -160,6 +191,11 @@ func (v ValueInt8) Set(value string) error {
 	return nil
 }
 
+// String implements [fmt.Stringer].
+func (v ValueInt8) String() string {
+	return strconv.FormatInt(int64(*v.vp), 10)
+}
+
 // ValueInt16 implements [Value] for int16.
 //
 // Construct using [NewValueInt16].
@@ -182,6 +218,11 @@ func (v ValueInt16) Set(value string) error {
 	}
 	*v.vp = int16(parsed)
 	return nil
+}
+
+// String implements [fmt.Stringer].
+func (v ValueInt16) String() string {
+	return strconv.FormatInt(int64(*v.vp), 10)
 }
 
 // ValueInt32 implements [Value] for int32.
@@ -208,6 +249,11 @@ func (v ValueInt32) Set(value string) error {
 	return nil
 }
 
+// String implements [fmt.Stringer].
+func (v ValueInt32) String() string {
+	return strconv.FormatInt(int64(*v.vp), 10)
+}
+
 // ValueInt64 implements [Value] for int64.
 //
 // Construct using [NewValueInt64].
@@ -232,6 +278,11 @@ func (v ValueInt64) Set(value string) error {
 	return nil
 }
 
+// String implements [fmt.Stringer].
+func (v ValueInt64) String() string {
+	return strconv.FormatInt(*v.vp, 10)
+}
+
 // ValueString implements [Value] for string.
 //
 // Construct using [NewValueString].
@@ -252,6 +303,11 @@ func (v ValueString) Set(value string) error {
 	return nil
 }
 
+// String implements [fmt.Stringer].
+func (v ValueString) String() string {
+	return *v.vp
+}
+
 // ValueStringSlice implements [Value] for a string slice.
 //
 // Construct using [NewValueStringSlice].
@@ -270,6 +326,11 @@ var _ Value = ValueStringSlice{}
 func (v ValueStringSlice) Set(value string) error {
 	*v.vp = append(*v.vp, value)
 	return nil
+}
+
+// String implements [fmt.Stringer].
+func (v ValueStringSlice) String() string {
+	return strings.Join(*v.vp, ",")
 }
 
 // ValueUint implements [Value] for uint.
@@ -296,6 +357,11 @@ func (v ValueUint) Set(value string) error {
 	return nil
 }
 
+// String implements [fmt.Stringer].
+func (v ValueUint) String() string {
+	return strconv.FormatUint(uint64(*v.vp), 10)
+}
+
 // ValueUint8 implements [Value] for uint8.
 //
 // Construct using [NewValueUint8].
@@ -318,6 +384,11 @@ func (v ValueUint8) Set(value string) error {
 	}
 	*v.vp = uint8(parsed)
 	return nil
+}
+
+// String implements [fmt.Stringer].
+func (v ValueUint8) String() string {
+	return strconv.FormatUint(uint64(*v.vp), 10)
 }
 
 // ValueUint16 implements [Value] for uint16.
@@ -344,6 +415,11 @@ func (v ValueUint16) Set(value string) error {
 	return nil
 }
 
+// String implements [fmt.Stringer].
+func (v ValueUint16) String() string {
+	return strconv.FormatUint(uint64(*v.vp), 10)
+}
+
 // ValueUint32 implements [Value] for uint32.
 //
 // Construct using [NewValueUint32].
@@ -368,6 +444,11 @@ func (v ValueUint32) Set(value string) error {
 	return nil
 }
 
+// String implements [fmt.Stringer].
+func (v ValueUint32) String() string {
+	return strconv.FormatUint(uint64(*v.vp), 10)
+}
+
 // ValueUInt64 implements [Value] for uint64.
 //
 // Construct using [NewValueUInt64].
@@ -390,4 +471,9 @@ func (v ValueUInt64) Set(value string) error {
 	}
 	*v.vp = parsed
 	return nil
+}
+
+// String implements [fmt.Stringer].
+func (v ValueUInt64) String() string {
+	return strconv.FormatUint(*v.vp, 10)
 }

@@ -18,11 +18,17 @@ type UsageFlag struct {
 	// Description contains the paragraphs inside the description.
 	Description []string
 
+	// IsAutoHelp indicates that this is the auto help flag.
+	IsAutoHelp bool
+
 	// Long is the long flag to use (e.g. "--verbose[=BOOL]", "--file FILE")
 	Long string
 
 	// Short is the short flag to use (e.g. "-v", "-f FILE")
 	Short string
+
+	// Value is the current flag value.
+	Value string
 }
 
 // UsageFlagSet is a [*FlagSet] view that allows obtaining the
@@ -44,15 +50,21 @@ func (ufs UsageFlagSet) Example() []string {
 // Flags returns the flags we should print.
 func (ufs UsageFlagSet) Flags() (output []UsageFlag) {
 	for _, entry := range ufs.Set.flags {
-		longOption := fmt.Sprintf("%s%s", entry.LongPrefix, entry.LongName)
-		shortOption := fmt.Sprintf("%s%s", entry.ShortPrefix, string(entry.ShortName))
+		shortArgumentName := entry.ShortArgumentName
+		longArgumentName := entry.LongArgumentName
+		value := entry.Value.String()
+		_, isAutoHelp := entry.Value.(ValueAutoHelp)
+		longOption := fmt.Sprintf("%s%s%s", entry.LongPrefix, entry.LongName, longArgumentName)
+		shortOption := fmt.Sprintf("%s%s%s", entry.ShortPrefix, string(entry.ShortName), shortArgumentName)
 		if longOption == "" && shortOption == "" {
 			continue
 		}
 		output = append(output, UsageFlag{
 			Description: entry.Description,
+			IsAutoHelp:  isAutoHelp,
 			Long:        longOption,
 			Short:       shortOption,
+			Value:       value,
 		})
 	}
 	return
@@ -182,11 +194,20 @@ func (p DefaultUsagePrinter) PrintUsage(w io.Writer, fs UsageFlagSet) {
 	if flags := fs.Flags(); len(flags) > 0 {
 		p.div0(w, "Flags")
 		for _, fentry := range flags {
-			if v := fentry.Short; v != "" {
-				p.span1(w, v)
+			short, long, value := fentry.Short, fentry.Long, fentry.Value
+			defaultValue := fmt.Sprintf(" (default: `%s`)", value)
+			if fentry.IsAutoHelp {
+				defaultValue = ""
 			}
-			if v := fentry.Long; v != "" {
-				p.span1(w, v)
+			switch {
+			case short != "" && long != "":
+				p.div1(w, fmt.Sprintf("%s, %s%s", short, long, defaultValue))
+			case short != "":
+				p.div1(w, fmt.Sprintf("%s%s", short, defaultValue))
+			case long != "":
+				p.div1(w, fmt.Sprintf("%s%s", long, defaultValue))
+			default:
+				runtimex.Assert(false)
 			}
 			for _, dentry := range fentry.Description {
 				p.div2(w, dentry)
@@ -215,10 +236,6 @@ func (p DefaultUsagePrinter) PrintHelpHint(w io.Writer, fs UsageFlagSet) {
 
 func (p DefaultUsagePrinter) div0(w io.Writer, value string) {
 	_ = runtimex.PanicOnError1(fmt.Fprintf(w, "\n%s\n", value))
-}
-
-func (p DefaultUsagePrinter) span0(w io.Writer, value string) {
-	_ = runtimex.PanicOnError1(fmt.Fprintf(w, "\n%s", value))
 }
 
 func (p DefaultUsagePrinter) div1(w io.Writer, value string) {

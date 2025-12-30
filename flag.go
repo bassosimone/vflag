@@ -41,13 +41,6 @@ type Flag struct {
 	Value Value
 }
 
-var _ Value = &Flag{}
-
-// Set implements [Value].
-func (fx *Flag) Set(value string) error {
-	return fx.Value.Set(value)
-}
-
 // FlagMakeOptionsAutoHelp returns the slice of [*flagparser.Option] to use for auto help.
 //
 // The return value has zero length if the [*Flag] argument is misconfigured.
