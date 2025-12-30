@@ -1,0 +1,6 @@
+github.com/bassosimone/flagparser v0.0.0-20251229200640-52959d310fca h1:7WqDmZ9rb+rLpWHDyzZi8TtyR5y147zgC3B17n4CXFw=
+github.com/bassosimone/flagparser v0.0.0-20251229200640-52959d310fca/go.mod h1:w3SZll0B9rHwSCynSeM3WES8V+Otd9BwIdQrZqGfXLg=
+github.com/bassosimone/flagscanner v0.0.0-20251227135253-cf7a31624729 h1:IDuSjxER/b38gKnGL4WxQvPizPQq8bq1wAa8dbNQ+mo=
+github.com/bassosimone/flagscanner v0.0.0-20251227135253-cf7a31624729/go.mod h1:rNk3EiWuBQknQM0tuUa5DK0g7JxcVCLaCyCmnCcDlTk=
+github.com/bassosimone/runtimex v0.0.0-20251217192325-70882b9ab4d3 h1:NHcu1geY9Wq9qHexLeukJMAZ48imFAXi8jGJAz4QdO4=
+github.com/bassosimone/runtimex v0.0.0-20251217192325-70882b9ab4d3/go.mod h1:GDr46yuJzuDkzOMI1/9Voo3s7VmYBU/6pkuaI5FR7gE=
