@@ -215,16 +215,17 @@ func (p DefaultUsagePrinter) PrintUsage(w io.Writer, fs UsageFlagSet) {
 			if fentry.IsAutoHelp {
 				defaultValue = ""
 			}
+			var formatted string
 			switch {
 			case short != "" && long != "":
-				p.div0(w, fmt.Sprintf("    %s, %s%s", short, long, defaultValue))
+				formatted = fmt.Sprintf("    %s, %s%s", short, long, defaultValue)
 			case short != "":
-				p.div0(w, fmt.Sprintf("    %s%s", short, defaultValue))
+				formatted = fmt.Sprintf("    %s%s", short, defaultValue)
 			case long != "":
-				p.div0(w, fmt.Sprintf("    %s%s", long, defaultValue))
-			default:
-				runtimex.Assert(false)
+				formatted = fmt.Sprintf("    %s%s", long, defaultValue)
 			}
+			runtimex.Assert(formatted != "")
+			p.div0(w, formatted)
 			for _, dentry := range fentry.Description {
 				p.div0(w, textwrap.Do(dentry, wrapAtColumn, "        "))
 			}
