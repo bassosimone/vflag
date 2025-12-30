@@ -51,15 +51,24 @@ func (ufs UsageFlagSet) Example() []string {
 // Flags returns the flags we should print.
 func (ufs UsageFlagSet) Flags() (output []UsageFlag) {
 	for _, entry := range ufs.Set.flags {
-		shortArgumentName := entry.ShortArgumentName
-		longArgumentName := entry.LongArgumentName
-		value := entry.Value.String()
-		_, isAutoHelp := entry.Value.(ValueAutoHelp)
-		longOption := fmt.Sprintf("%s%s%s", entry.LongPrefix, entry.LongName, longArgumentName)
-		shortOption := fmt.Sprintf("%s%s%s", entry.ShortPrefix, string(entry.ShortName), shortArgumentName)
+		var longOption string
+		if entry.LongName != "" && entry.LongPrefix != "" {
+			longArgumentName := entry.LongArgumentName
+			longOption = fmt.Sprintf("%s%s%s", entry.LongPrefix, entry.LongName, longArgumentName)
+		}
+
+		var shortOption string
+		if entry.ShortName != 0 && entry.ShortPrefix != "" {
+			shortArgumentName := entry.ShortArgumentName
+			shortOption = fmt.Sprintf("%s%s%s", entry.ShortPrefix, string(entry.ShortName), shortArgumentName)
+		}
+
 		if longOption == "" && shortOption == "" {
 			continue
 		}
+
+		value := entry.Value.String()
+		_, isAutoHelp := entry.Value.(ValueAutoHelp)
 		output = append(output, UsageFlag{
 			Description: entry.Description,
 			IsAutoHelp:  isAutoHelp,
@@ -233,7 +242,7 @@ func (p DefaultUsagePrinter) PrintUsage(w io.Writer, fs UsageFlagSet) {
 // This method panics on I/O error.
 func (p DefaultUsagePrinter) PrintHelpHint(w io.Writer, fs UsageFlagSet) {
 	if hf := fs.HelpFlag(); hf != "" {
-		p.div0(w, fmt.Sprintf("hint: try `%s' for more help.\n", hf))
+		_ = runtimex.PanicOnError1(fmt.Fprintf(w, "hint: try `%s' for more help.\n", hf))
 	}
 }
 
