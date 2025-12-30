@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/bassosimone/must"
 	"github.com/bassosimone/runtimex"
 	"github.com/bassosimone/textwrap"
 )
@@ -27,7 +28,7 @@ func (fs *FlagSet) PrintUsageString(w io.Writer) {
 //
 // If auto-help has been used, this function also prints a hint for the user.
 func (fs *FlagSet) PrintUsageError(w io.Writer, err error) {
-	_ = runtimex.PanicOnError1(fmt.Fprintf(w, "%s: %s\n", fs.ProgramName, err.Error()))
+	must.Fprintf(w, "%s: %s\n", fs.ProgramName, err.Error())
 	fs.UsagePrinter.PrintHelpHint(w, UsageFlagSet{fs})
 }
 
@@ -256,7 +257,7 @@ func (p DefaultUsagePrinter) PrintUsage(w io.Writer, fs UsageFlagSet) {
 		}
 	}
 
-	_ = runtimex.PanicOnError1(fmt.Fprintf(w, "\n"))
+	must.Fprintf(w, "\n")
 }
 
 // PrintHelpHint implements [UsagePrinter].
@@ -264,10 +265,10 @@ func (p DefaultUsagePrinter) PrintUsage(w io.Writer, fs UsageFlagSet) {
 // This method panics on I/O error.
 func (p DefaultUsagePrinter) PrintHelpHint(w io.Writer, fs UsageFlagSet) {
 	if hf := fs.HelpFlag(); hf != "" {
-		_ = runtimex.PanicOnError1(fmt.Fprintf(w, "hint: try `%s' for more help.\n", hf))
+		must.Fprintf(w, "hint: try `%s' for more help.\n", hf)
 	}
 }
 
 func (p DefaultUsagePrinter) div0(w io.Writer, value string) {
-	_ = runtimex.PanicOnError1(fmt.Fprintf(w, "\n%s\n", value))
+	must.Fprintf(w, "\n%s\n", value)
 }
