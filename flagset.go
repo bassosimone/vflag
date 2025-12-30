@@ -8,10 +8,8 @@ package vflag
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/bassosimone/flagparser"
 	"github.com/bassosimone/runtimex"
@@ -305,19 +303,15 @@ func (fs *FlagSet) maybeHandleError(err error) error {
 		return err
 
 	case fs.ErrorHandling == ExitOnError && errors.Is(err, ErrHelp):
-		fs.UsagePrinter.PrintUsage(fs.Stdout, UsageFlagSet{fs})
+		fs.PrintUsageString(fs.Stdout)
 		fs.Exit(0)
 
 	case fs.ErrorHandling == ExitOnError:
-		fmt.Fprintf(fs.Stderr, "%s: %s\n", fs.ProgramName, err.Error())
-		var sb strings.Builder
-		fs.UsagePrinter.PrintHelpHint(&sb, UsageFlagSet{fs})
-		if sb.Len() > 0 {
-			fmt.Fprint(fs.Stderr, sb.String())
-		}
+		fs.PrintUsageError(fs.Stderr, err)
 		fs.Exit(2)
 	}
 
-	// all the remaining cases cause a panic
+	// We end up here for [PanicOnError] or whenever fs.Exit is so
+	// broken that it does not actually exit.
 	panic(err)
 }

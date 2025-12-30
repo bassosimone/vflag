@@ -14,6 +14,23 @@ import (
 	"github.com/bassosimone/textwrap"
 )
 
+// PrintUsageString writes the usage string to the given [io.Writer].
+//
+// This function panics if writing to the [io.Writer] fails.
+func (fs *FlagSet) PrintUsageString(w io.Writer) {
+	fs.UsagePrinter.PrintUsage(w, UsageFlagSet{fs})
+}
+
+// PrintUsageError writes the usage error that occurred to the given [io.Writer].
+//
+// This function panics if writing to the [io.Writer] fails.
+//
+// If auto-help has been used, this function also prints a hint for the user.
+func (fs *FlagSet) PrintUsageError(w io.Writer, err error) {
+	_ = runtimex.PanicOnError1(fmt.Fprintf(w, "%s: %s\n", fs.ProgramName, err.Error()))
+	fs.UsagePrinter.PrintHelpHint(w, UsageFlagSet{fs})
+}
+
 // UsageFlag is [*Flag] as seen by [UsagePrinter].
 type UsageFlag struct {
 	// Description contains the paragraphs inside the description.
