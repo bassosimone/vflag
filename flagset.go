@@ -84,6 +84,11 @@ type FlagSet struct {
 	// Example contains the examples paragraphs used when printing the usage.
 	//
 	// [NewFlagSet] initializes this field to an empty slice.
+	//
+	// The [*FlagSet.PrintUsage] method will treat each paragraph as independent
+	// and word wrap it to 72 characters removing leading spaces. However, if
+	// a paragraph starts with 4 spaces, the method will assume the user intends to
+	// emit a verbatim block and will not word wrap it.
 	Example []string
 
 	// Exit is the function to call with the [ExitOnError] policy.

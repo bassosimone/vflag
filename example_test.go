@@ -47,7 +47,14 @@ func ExampleFlagSet_curlHelp() {
 
 	// Edit the default values
 	fset.AddDescription("curl is an utility to transfer URLs.")
-	fset.AddExamples("curl -fsSL -o index.html https://example.com/")
+	fset.AddExamples(
+		"Fetch https://example.com/ and store the results at index.html:",
+		"    curl -fsSL -o index.html https://example.com/",
+		"Same as above but emit to stdout implicitly:",
+		"    curl -fsSL https://example.com/",
+		"Same as above but emit to stdout explicitly using `-`:",
+		"    curl -fsSL -o- https://example.com/",
+	)
 	fset.PositionalArgumentsUsage = "URL ..."
 	fset.SetMinMaxPositionalArgs(1, math.MaxInt)
 
@@ -114,7 +121,17 @@ func ExampleFlagSet_curlHelp() {
 	//
 	// Examples
 	//
-	//     curl -fsSL -o index.html https://example.com/
+	//     Fetch https://example.com/ and store the results at index.html:
+	//
+	//         curl -fsSL -o index.html https://example.com/
+	//
+	//     Same as above but emit to stdout implicitly:
+	//
+	//         curl -fsSL https://example.com/
+	//
+	//     Same as above but emit to stdout explicitly using `-`:
+	//
+	//         curl -fsSL -o- https://example.com/
 }
 
 // This example shows how we print errors when there are too few arguments.

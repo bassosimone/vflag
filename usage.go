@@ -9,6 +9,7 @@ package vflag
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/bassosimone/must"
 	"github.com/bassosimone/runtimex"
@@ -213,7 +214,11 @@ type DefaultUsagePrinter struct{}
 //
 // This method panics on I/O error.
 func (p DefaultUsagePrinter) PrintUsage(w io.Writer, fs UsageFlagSet) {
-	const wrapAtColumn = 72
+	const (
+		wrapAtColumn = 72
+		indent4      = "    "
+		indent8      = indent4 + indent4
+	)
 
 	p.div0(w, "Usage")
 	p.div0(w, fmt.Sprintf("    %s%s%s", fs.ProgramName(), fs.FlagsName(), fs.PositionalArgumentsUsage()))
@@ -221,7 +226,7 @@ func (p DefaultUsagePrinter) PrintUsage(w io.Writer, fs UsageFlagSet) {
 	if description := fs.Description(); len(description) > 0 {
 		p.div0(w, "Description")
 		for _, dentry := range description {
-			p.div0(w, textwrap.Do(dentry, wrapAtColumn, "    "))
+			p.div0(w, textwrap.Do(dentry, wrapAtColumn, indent4))
 		}
 	}
 
@@ -245,7 +250,7 @@ func (p DefaultUsagePrinter) PrintUsage(w io.Writer, fs UsageFlagSet) {
 			runtimex.Assert(formatted != "")
 			p.div0(w, formatted)
 			for _, dentry := range fentry.Description {
-				p.div0(w, textwrap.Do(dentry, wrapAtColumn, "        "))
+				p.div0(w, textwrap.Do(dentry, wrapAtColumn, indent8))
 			}
 		}
 	}
@@ -253,7 +258,14 @@ func (p DefaultUsagePrinter) PrintUsage(w io.Writer, fs UsageFlagSet) {
 	if example := fs.Example(); len(example) > 0 {
 		p.div0(w, "Examples")
 		for _, eentry := range example {
-			p.div0(w, textwrap.Do(eentry, wrapAtColumn, "    "))
+			// As documented, paragraphs starting with four indents
+			// are considered verbatim blocks and are not wrapped. Obviously
+			// we still need to increase their relative indent.
+			if strings.HasPrefix(eentry, indent4) {
+				p.div0(w, indent4+eentry)
+				continue
+			}
+			p.div0(w, textwrap.Do(eentry, wrapAtColumn, indent4))
 		}
 	}
 
