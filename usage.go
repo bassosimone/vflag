@@ -20,7 +20,7 @@ import (
 //
 // This function panics if writing to the [io.Writer] fails.
 func (fs *FlagSet) PrintUsageString(w io.Writer) {
-	fs.UsagePrinter.PrintUsage(w, UsageFlagSet{fs})
+	fs.UsagePrinter.PrintUsageString(fs, w)
 }
 
 // PrintUsageError writes the usage error that occurred to the given [io.Writer].
@@ -29,88 +29,19 @@ func (fs *FlagSet) PrintUsageString(w io.Writer) {
 //
 // If auto-help has been used, this function also prints a hint for the user.
 func (fs *FlagSet) PrintUsageError(w io.Writer, err error) {
-	must.Fprintf(w, "%s: %s\n", fs.ProgramName, err.Error())
-	fs.UsagePrinter.PrintHelpHint(w, UsageFlagSet{fs})
+	fs.UsagePrinter.PrintUsageError(fs, w, err)
 }
 
-// UsageFlag is [*Flag] as seen by [UsagePrinter].
-type UsageFlag struct {
-	// Description contains the paragraphs inside the description.
-	Description []string
-
-	// IsAutoHelp indicates that this is the auto help flag.
-	IsAutoHelp bool
-
-	// Long is the long flag to use (e.g. "--verbose[=BOOL]", "--file FILE")
-	Long string
-
-	// Short is the short flag to use (e.g. "-v", "-f FILE")
-	Short string
-
-	// Value is the current flag value.
-	Value string
-}
-
-// UsageFlagSet is a [*FlagSet] view that allows obtaining the
-// strings for printing the usage using a [UsagePrinter].
-type UsageFlagSet struct {
-	Set *FlagSet
-}
-
-// Description returns the paragraphs inside the description.
-func (ufs UsageFlagSet) Description() []string {
-	return ufs.Set.Description
-}
-
-// Example returns the paragraphs inside the example.
-func (ufs UsageFlagSet) Example() []string {
-	return ufs.Set.Example
-}
-
-// Flags returns the flags we should print.
-func (ufs UsageFlagSet) Flags() (output []UsageFlag) {
-	for _, entry := range ufs.Set.flags {
-		var longOption string
-		if entry.LongName != "" && entry.LongPrefix != "" {
-			longArgumentName := entry.LongArgumentName
-			longOption = fmt.Sprintf("%s%s%s", entry.LongPrefix, entry.LongName, longArgumentName)
-		}
-
-		var shortOption string
-		if entry.ShortName != 0 && entry.ShortPrefix != "" {
-			shortArgumentName := entry.ShortArgumentName
-			shortOption = fmt.Sprintf("%s%s%s", entry.ShortPrefix, string(entry.ShortName), shortArgumentName)
-		}
-
-		if longOption == "" && shortOption == "" {
-			continue
-		}
-
-		value := entry.Value.String()
-		_, isAutoHelp := entry.Value.(ValueAutoHelp)
-		output = append(output, UsageFlag{
-			Description: entry.Description,
-			IsAutoHelp:  isAutoHelp,
-			Long:        longOption,
-			Short:       shortOption,
-			Value:       value,
-		})
-	}
-	return
-}
-
-func (ufs UsageFlagSet) FlagsName() (output string) {
-	if f := ufs.Set.flags; len(f) > 0 {
+func (up *DefaultUsagePrinter) flagsName(fset *FlagSet) (output string) {
+	if f := fset.Flags(); len(f) > 0 {
 		output = " [flags]"
 	}
 	return output
 }
 
-// HelpFlag returns the flag to use to get the help screen.
-//
-// The return value is empty if [*FlagSet.AutoHelp] has not been used.
-func (ufs UsageFlagSet) HelpFlag() string {
-	for _, fx := range ufs.Set.flags {
+// HelpInvocation returns the string with which to obtain help.
+func (fs *FlagSet) HelpInvocation() string {
+	for _, fx := range fs.flags {
 		if _, ok := fx.Value.(ValueAutoHelp); !ok {
 			continue
 		}
@@ -123,21 +54,20 @@ func (ufs UsageFlagSet) HelpFlag() string {
 			prefix, name = fx.LongPrefix, fx.LongName
 		} else if fx.ShortPrefix != "" && fx.ShortName != 0 {
 			prefix, name = fx.ShortPrefix, string(fx.ShortName)
-		} else {
-			continue
 		}
 
-		return ufs.Set.ProgramName + " " + prefix + name
+		// Note that [*FlagSet.AddFlag] rejects empty flags
+		runtimex.Assert(prefix != "" && name != "")
+
+		return fs.ProgramName + " " + prefix + name
 	}
 	return ""
 }
 
-// PositionalArgumentsUsage returns the string to print for
-// the positional arguments (e.g. "", " [args]").
-func (ufs UsageFlagSet) PositionalArgumentsUsage() (output string) {
-	minArgs, maxArgs := max(0, ufs.Set.MinPositionalArgs), max(0, ufs.Set.MaxPositionalArgs)
+func (up *DefaultUsagePrinter) positionalArgumentsUsage(fset *FlagSet) (output string) {
+	minArgs, maxArgs := fset.MinPositionalArgs, fset.MaxPositionalArgs
 	if maxArgs >= minArgs && maxArgs > 0 {
-		output = ufs.Set.PositionalArgumentsUsage
+		output = up.PositionalArgumentsUsage
 		switch {
 		case output != "":
 			// nothing
@@ -155,22 +85,26 @@ func (ufs UsageFlagSet) PositionalArgumentsUsage() (output string) {
 	return
 }
 
-// ProgramName returns the program name.
-func (ufs UsageFlagSet) ProgramName() string {
-	return ufs.Set.ProgramName
-}
-
 // UsagePrinter is the interface used to print the usage.
 type UsagePrinter interface {
-	PrintUsage(w io.Writer, fs UsageFlagSet)
-	PrintHelpHint(w io.Writer, fs UsageFlagSet)
+	PrintUsageString(fs *FlagSet, w io.Writer)
+	PrintUsageError(fs *FlagSet, w io.Writer, err error)
 }
+
+// Constants controlling text formatting
+const (
+	wrapAtColumn = 72
+	indent4      = "    "
+	indent8      = indent4 + indent4
+)
 
 // DefaultUsagePrinter is the default [UsagePrinter] implementation.
 //
+// Construct using [NewDefaultUsagePrinter].
+//
 // # Usage Format
 //
-// The default template we use follows this pattern:
+// The default we use follows this pattern:
 //
 //	Usage
 //
@@ -182,60 +116,81 @@ type UsagePrinter interface {
 //
 //	Flags
 //
-//	    -o FILE
-//
-//	    --output FILE
+//	    -o FILE, --output FILE (default: `-`)
 //
 //	        Write output to the given file.
 //
-//	    -s
-//
-//	    --silent[=true|false]
+//	    -s, --silent[=true|false]
 //
 //	        Disable emitting output.
 //
 //	Examples
 //
-//	    curl -so /dev/null https://www.example.com/
+//	    Fetch the homepage of the www.example.com website:
 //
-//	        Fetches the homepage of the www.example.com website.
+//	        curl -so /dev/null https://www.example.com/
 //
 // # Help Hint Format
 //
-// The default template we use follows this pattern:
+// The template we use follows this pattern:
 //
-//	hint: Try `curl --help' for more help.\n
+//	curl: unknown flag --verbose
+//	curl: try `curl --help` for more help.
 //
-// We only print something on the given [io.Writer] if the user has
+// We only print the help hint on the given [io.Writer] if the user has
 // configured a [*Flag] containing a [ValueAutoHelp] [Value].
-type DefaultUsagePrinter struct{}
+type DefaultUsagePrinter struct {
+	// Description contains the program description paragraphs used when printing the usage.
+	//
+	// [NewDefaultUsagePrinter] initializes this field to an empty slice.
+	//
+	// The [*DefaultUsagePrinter.PrintUsageString] method will treat each paragraph as independent
+	// and word wrap it to 72 characters removing leading spaces. However, if
+	// a paragraph starts with 4 spaces, the method will assume the user intends to
+	// emit a verbatim block and will not word wrap it.
+	Description []string
 
-// PrintUsage implements [UsagePrinter].
+	// Example contains the examples paragraphs used when printing the usage.
+	//
+	// [NewDefaultUsagePrinter] initializes this field to an empty slice.
+	//
+	// The [*DefaultUsagePrinter.PrintUsageString] method will treat each paragraph as independent
+	// and word wrap it to 72 characters removing leading spaces. However, if
+	// a paragraph starts with 4 spaces, the method will assume the user intends to
+	// emit a verbatim block and will not word wrap it.
+	Example []string
+
+	// PositionalArgumentsUsage is the usage string for postional arguments.
+	//
+	// [NewDefaultUsagePrinter] initializes this field to "". If this value is empty,
+	// when printing help we use "", arg" or "args..." depending on whether
+	// zero, one, or multiple positional arguments are possible.
+	PositionalArgumentsUsage string
+}
+
+// PrintUsageString implements [vflag.UsagePrinter].
 //
 // This method panics on I/O error.
-func (p DefaultUsagePrinter) PrintUsage(w io.Writer, fs UsageFlagSet) {
-	const (
-		wrapAtColumn = 72
-		indent4      = "    "
-		indent8      = indent4 + indent4
-	)
+func (up *DefaultUsagePrinter) PrintUsageString(fset *FlagSet, w io.Writer) {
+	// ## Usage
+	up.div0(w, "Usage")
+	up.div0(w, fmt.Sprintf("    %s%s%s", fset.ProgramName, up.flagsName(fset), up.positionalArgumentsUsage(fset)))
 
-	p.div0(w, "Usage")
-	p.div0(w, fmt.Sprintf("    %s%s%s", fs.ProgramName(), fs.FlagsName(), fs.PositionalArgumentsUsage()))
-
-	if description := fs.Description(); len(description) > 0 {
-		p.div0(w, "Description")
-		for _, dentry := range description {
-			p.div0(w, textwrap.Do(dentry, wrapAtColumn, indent4))
+	// ## Description
+	if description := up.Description; len(description) > 0 {
+		up.div0(w, "Description")
+		for _, entry := range description {
+			up.div1(w, entry)
 		}
 	}
 
-	if flags := fs.Flags(); len(flags) > 0 {
-		p.div0(w, "Flags")
+	// ## Flags
+	if flags := fset.Flags(); len(flags) > 0 {
+		up.div0(w, "Flags")
 		for _, fentry := range flags {
-			short, long, value := fentry.Short, fentry.Long, fentry.Value
+			short, long, value := fentry.UsageShort(), fentry.UsageLong(), fentry.Value
 			defaultValue := fmt.Sprintf(" (default: `%s`)", value)
-			if fentry.IsAutoHelp {
+			if _, ok := fentry.Value.(ValueAutoHelp); ok {
 				defaultValue = ""
 			}
 			var formatted string
@@ -243,44 +198,68 @@ func (p DefaultUsagePrinter) PrintUsage(w io.Writer, fs UsageFlagSet) {
 			case short != "" && long != "":
 				formatted = fmt.Sprintf("    %s, %s%s", short, long, defaultValue)
 			case short != "":
+				if _, ok := fentry.Value.(ValueBool); ok {
+					defaultValue = ""
+				}
 				formatted = fmt.Sprintf("    %s%s", short, defaultValue)
 			case long != "":
 				formatted = fmt.Sprintf("    %s%s", long, defaultValue)
 			}
-			runtimex.Assert(formatted != "")
-			p.div0(w, formatted)
+			runtimex.Assert(formatted != "") // [*vflag.FlagSet.AddFlag] rejects empty flags
+			up.div0(w, formatted)
 			for _, dentry := range fentry.Description {
-				p.div0(w, textwrap.Do(dentry, wrapAtColumn, indent8))
+				up.div0(w, textwrap.Do(dentry, wrapAtColumn, indent8))
 			}
 		}
 	}
 
-	if example := fs.Example(); len(example) > 0 {
-		p.div0(w, "Examples")
-		for _, eentry := range example {
-			// As documented, paragraphs starting with four indents
-			// are considered verbatim blocks and are not wrapped. Obviously
-			// we still need to increase their relative indent.
-			if strings.HasPrefix(eentry, indent4) {
-				p.div0(w, indent4+eentry)
-				continue
-			}
-			p.div0(w, textwrap.Do(eentry, wrapAtColumn, indent4))
+	// ## Example
+	if example := up.Example; len(example) > 0 {
+		up.div0(w, "Examples")
+		for _, entry := range example {
+			up.div1(w, entry)
 		}
 	}
 
 	must.Fprintf(w, "\n")
 }
 
-// PrintHelpHint implements [UsagePrinter].
+// PrintUsageError implements [vflag.UsagePrinter].
 //
 // This method panics on I/O error.
-func (p DefaultUsagePrinter) PrintHelpHint(w io.Writer, fs UsageFlagSet) {
-	if hf := fs.HelpFlag(); hf != "" {
-		must.Fprintf(w, "hint: try `%s' for more help.\n", hf)
+func (up *DefaultUsagePrinter) PrintUsageError(fset *FlagSet, w io.Writer, err error) {
+	programName := fset.ProgramName
+	must.Fprintf(w, "%s: %s\n", programName, err.Error())
+	if cmdline := fset.HelpInvocation(); cmdline != "" {
+		must.Fprintf(w, "%s: try `%s' for more help.\n", programName, cmdline)
 	}
 }
 
-func (p DefaultUsagePrinter) div0(w io.Writer, value string) {
+func (up *DefaultUsagePrinter) div1(w io.Writer, entry string) {
+	if strings.HasPrefix(entry, indent4) {
+		up.div0(w, indent4+entry)
+		return
+	}
+	up.div0(w, textwrap.Do(entry, wrapAtColumn, indent4))
+}
+
+func (up *DefaultUsagePrinter) div0(w io.Writer, value string) {
 	must.Fprintf(w, "\n%s\n", value)
 }
+
+// NewDefaultUsagePrinter constructs a new [*DefaultUsagePrinter].
+func NewDefaultUsagePrinter() *DefaultUsagePrinter {
+	return &DefaultUsagePrinter{}
+}
+
+// AddDescription adds a paragraph to the current description.
+func (up *DefaultUsagePrinter) AddDescription(values ...string) {
+	up.Description = append(up.Description, values...)
+}
+
+// AddExamples adds a paragraph to the current examples.
+func (up *DefaultUsagePrinter) AddExamples(values ...string) {
+	up.Example = append(up.Example, values...)
+}
+
+var _ UsagePrinter = &DefaultUsagePrinter{}

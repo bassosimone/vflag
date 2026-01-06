@@ -6,7 +6,11 @@
 
 package vflag
 
-import "github.com/bassosimone/flagparser"
+import (
+	"fmt"
+
+	"github.com/bassosimone/flagparser"
+)
 
 // Flag represents a flag to parse.
 //
@@ -39,6 +43,26 @@ type Flag struct {
 
 	// Value is the flag value.
 	Value Value
+}
+
+// UsageShort returns the short usage string for the flag.
+//
+// For example: `-v` or `-t TAG`.
+func (fx *Flag) UsageShort() (output string) {
+	if fx.ShortPrefix != "" && fx.ShortName != 0 {
+		output = fmt.Sprintf("%s%s%s", fx.ShortPrefix, string(fx.ShortName), fx.ShortArgumentName)
+	}
+	return
+}
+
+// UsageLong returns the long usage string for the flag.
+//
+// For example: `--verbose[=true|false]`, `--tag TAG`.
+func (fx *Flag) UsageLong() (output string) {
+	if fx.LongPrefix != "" && fx.LongName != "" {
+		output = fmt.Sprintf("%s%s%s", fx.LongPrefix, fx.LongName, fx.LongArgumentName)
+	}
+	return
 }
 
 // FlagMakeOptionsAutoHelp returns the slice of [*flagparser.Option] to use for auto help.
@@ -116,7 +140,7 @@ func FlagMakeOptionsBool(fx *Flag) []*flagparser.Option {
 // to `-` following the GNU convention. If you need different prefixes,
 // modify the related fields in the returned [*Flag] structure.
 //
-// Likewise, we set the LongArgumentName to `[=BOOL]` and the ShortArgumentName
+// Likewise, we set the LongArgumentName to `[=true|false]` and the ShortArgumentName
 // to an empty values, and you may want to override these assignments.
 //
 // A zero shortName or an empty longName cause the respective short/long
@@ -126,7 +150,7 @@ func FlagMakeOptionsBool(fx *Flag) []*flagparser.Option {
 func NewFlagBool(value ValueBool, shortName byte, longName string, helpText ...string) *Flag {
 	return &Flag{
 		Description:       helpText,
-		LongArgumentName:  "[=BOOL]",
+		LongArgumentName:  "[=true|false]",
 		LongName:          longName,
 		LongPrefix:        "--",
 		MakeOptions:       FlagMakeOptionsBool,

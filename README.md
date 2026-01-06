@@ -19,10 +19,12 @@ import (
 fset := vflag.NewFlagSet("curl", vflag.ExitOnError)
 
 // Edit the default values
-fset.AddDescription("curl is an utility to transfer URLs.")
-fset.AddExamples("curl -fsSL -o index.html https://example.com/")
-fset.PositionalArgumentsUsage = "URL ..."
+usage := vflag.NewDefaultUsagePrinter()
+usage.AddDescription("curl is an utility to transfer URLs.")
+usage.AddExamples("curl -fsSL -o index.html https://example.com/")
+usage.PositionalArgumentsUsage = "URL ..."
 fset.SetMinMaxPositionalArgs(1, math.MaxInt)
+fset.UsagePrinter = usage
 
 // Add the supported flags
 var (

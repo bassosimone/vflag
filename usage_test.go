@@ -8,25 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUsageFlagSetFlags(t *testing.T) {
-	fs := NewFlagSet("prog", ContinueOnError)
-	var value bool
-	fs.AddFlag(NewFlagBool(NewValueBool(&value), 0, "", "Ignored flag."))
-
-	flags := UsageFlagSet{Set: fs}.Flags()
-	require.Empty(t, flags)
-}
-
-func TestUsageFlagSetHelpFlag(t *testing.T) {
-	fs := NewFlagSet("prog", ContinueOnError)
-	fs.AddFlag(&Flag{
-		Value: ValueAutoHelp{},
-	})
-
-	output := UsageFlagSet{Set: fs}.HelpFlag()
-	require.Empty(t, output)
-}
-
 func TestUsageFlagSetPositionalArgumentsUsage(t *testing.T) {
 	cases := []struct {
 		name       string
@@ -97,9 +78,10 @@ func TestUsageFlagSetPositionalArgumentsUsage(t *testing.T) {
 			fs := NewFlagSet("prog", ContinueOnError)
 			fs.MinPositionalArgs = tc.minArgs
 			fs.MaxPositionalArgs = tc.maxArgs
-			fs.PositionalArgumentsUsage = tc.usage
-
-			output := UsageFlagSet{Set: fs}.PositionalArgumentsUsage()
+			usage := NewDefaultUsagePrinter()
+			usage.PositionalArgumentsUsage = tc.usage
+			fs.UsagePrinter = usage
+			output := usage.positionalArgumentsUsage(fs)
 			require.Equal(t, tc.wantOutput, output)
 		})
 	}

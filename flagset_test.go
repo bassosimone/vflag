@@ -35,3 +35,10 @@ func TestFlagSetMaybeHandleError(t *testing.T) {
 		assert.ErrorIs(t, err, ErrHelp)
 	})
 }
+
+func TestFlagSetAddInvalidFlagPanics(t *testing.T) {
+	fset := NewFlagSet("test", ExitOnError)
+	assert.Panics(t, func() {
+		fset.AddFlag(&Flag{}) // add completely empty flag
+	})
+}

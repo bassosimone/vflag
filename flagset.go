@@ -42,11 +42,6 @@ const (
 // The [*FlagSet] will recognize `--verbose` as a syntactically valid flag
 // that has not been configured and print an "unknown flag" error.
 type FlagSet struct {
-	// Description contains the program description paragraphs used when printing the usage.
-	//
-	// [NewFlagSet] initializes this field to an empty slice.
-	Description []string
-
 	// DisablePermute disable the permutation of options and arguments.
 	//
 	// [NewFlagSet] initializes this field to false.
@@ -80,16 +75,6 @@ type FlagSet struct {
 	// By setting DisablePermute to true, the `--` separator
 	// becomes unnecessary and the UX is improved.
 	DisablePermute bool
-
-	// Example contains the examples paragraphs used when printing the usage.
-	//
-	// [NewFlagSet] initializes this field to an empty slice.
-	//
-	// The [*FlagSet.PrintUsage] method will treat each paragraph as independent
-	// and word wrap it to 72 characters removing leading spaces. However, if
-	// a paragraph starts with 4 spaces, the method will assume the user intends to
-	// emit a verbatim block and will not word wrap it.
-	Example []string
 
 	// Exit is the function to call with the [ExitOnError] policy.
 	//
@@ -126,13 +111,6 @@ type FlagSet struct {
 	// all the remaining entries as positional arguments.
 	OptionsArgumentsSeparator string
 
-	// PositionalArgumentsUsage is the usage string for postional arguments.
-	//
-	// [NewFlagSet] initializes this field to "". If this value is empty,
-	// when printing help we use "", arg" or "args..." depending on whether
-	// zero, one, or multiple positional arguments are possible.
-	PositionalArgumentsUsage string
-
 	// ProgramName is the program name.
 	//
 	// [NewFlagSet] initializes this field to the given program name.
@@ -154,7 +132,9 @@ type FlagSet struct {
 
 	// UsagePrinter is the [UsagePrinter] to use.
 	//
-	// [NewFlagSet] initializes this field to [DefaultUsagePrinter].
+	// [NewFlagSet] initializes this field to an empty [*DefaultUsagePrinter]
+	// instance. Explicitly construct a [UsagePrinter], for example using
+	// [NewDefaultUsagePrinter], and assign the field, to customize the help.
 	//
 	// We use this field with [ExitOnError] policy.
 	UsagePrinter UsagePrinter
@@ -176,32 +156,19 @@ func NewFlagSet(progname string, handling ErrorHandling) *FlagSet {
 		expectedPositionals = 8
 	)
 	return &FlagSet{
-		Description:               []string{},
 		DisablePermute:            false,
-		Example:                   []string{},
 		Exit:                      os.Exit,
 		ErrorHandling:             handling,
 		MaxPositionalArgs:         0,
 		MinPositionalArgs:         0,
 		OptionsArgumentsSeparator: "--",
-		PositionalArgumentsUsage:  "",
 		ProgramName:               progname,
 		Stderr:                    os.Stderr,
 		Stdout:                    os.Stdout,
-		UsagePrinter:              DefaultUsagePrinter{},
+		UsagePrinter:              &DefaultUsagePrinter{},
 		flags:                     make([]*Flag, 0, expectedFlags),
 		positionals:               make([]string, 0, expectedPositionals),
 	}
-}
-
-// AddDescription adds a paragraph to the current description.
-func (fs *FlagSet) AddDescription(values ...string) {
-	fs.Description = append(fs.Description, values...)
-}
-
-// AddExamples adds a paragraph to the current examples.
-func (fs *FlagSet) AddExamples(values ...string) {
-	fs.Example = append(fs.Example, values...)
 }
 
 // SetMinMaxPositionalArgs sets the minimum and maximum positional arguments.
@@ -221,7 +188,12 @@ func (fs *FlagSet) Flags() []*Flag {
 }
 
 // AddFlag adds the given [*Flag] to the [*FlagSet].
+//
+// Note that this method PANICS if the flag is invalid (i.e., if neither the short
+// option prefix and name nor the long option prefix and name are set).
 func (fs *FlagSet) AddFlag(fx *Flag) {
+	valid := (fx.ShortPrefix != "" && fx.ShortName != 0) || (fx.LongPrefix != "" && fx.LongName != "")
+	runtimex.Assert(valid)
 	fs.flags = append(fs.flags, fx)
 }
 
