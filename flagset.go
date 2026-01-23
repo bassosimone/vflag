@@ -187,6 +187,44 @@ func (fs *FlagSet) SetMinMaxPositionalArgs(minArgs, maxArgs int) {
 	fs.MaxPositionalArgs = maxArgs
 }
 
+// AddShortFlag appends a [*ShortFlag] to the [*FlagSet.ShortFlags] slice.
+//
+// Use this method when you need to add a pre-constructed [*ShortFlag], for example
+// when using non-GNU conventions like dig-style flags with custom prefixes.
+//
+// For GNU-style flags, prefer using the convenience methods like [*FlagSet.BoolVar],
+// [*FlagSet.StringVar], etc., which create and add both short and long flags.
+func (fs *FlagSet) AddShortFlag(flag *ShortFlag) {
+	fs.ShortFlags = append(fs.ShortFlags, flag)
+}
+
+// AddLongFlag appends a [*LongFlag] to the [*FlagSet.LongFlags] slice.
+//
+// Use this method when you need to add a pre-constructed [*LongFlag], for example
+// when using non-GNU conventions like Go-style flags with `-` prefix.
+//
+// For GNU-style flags, prefer using the convenience methods like [*FlagSet.BoolVar],
+// [*FlagSet.StringVar], etc., which create and add both short and long flags.
+func (fs *FlagSet) AddLongFlag(flag *LongFlag) {
+	fs.LongFlags = append(fs.LongFlags, flag)
+}
+
+// AddLongFlagDig appends a [*LongFlag] to the [*FlagSet.LongFlags] slice after
+// setting its [*LongFlag.Prefix] to `+` (dig-style convention).
+//
+// This is a convenience method for adding dig-style flags like `+short` or `+https`.
+// It automatically overrides the flag's prefix to use `+` instead of the default `--`.
+//
+// Example:
+//
+//	var shortFlag bool
+//	lf := vflag.NewLongFlagBool(vflag.NewValueBool(&shortFlag), "short", "Write terse output.")
+//	fset.AddLongFlagDig(lf) // Adds +short flag
+func (fs *FlagSet) AddLongFlagDig(flag *LongFlag) {
+	flag.Prefix = "+"
+	fs.LongFlags = append(fs.LongFlags, flag)
+}
+
 // Args returns the positional arguments collected by [*FlagSet.Parse].
 func (fs *FlagSet) Args() []string {
 	return fs.positionals

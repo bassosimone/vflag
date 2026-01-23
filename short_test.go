@@ -69,10 +69,10 @@ func TestArgumentNameFromDocsOrDefault(t *testing.T) {
 		assert.Equal(t, " VALUE123", result)
 	})
 
-	t.Run("only applies when default has leading space", func(t *testing.T) {
+	t.Run("properly handles optional arguments", func(t *testing.T) {
 		// When default doesn't have leading space, extraction is skipped
-		result := argumentNameFromDocsOrDefault([]string{"Write to `FILE`."}, "STRING")
-		assert.Equal(t, "STRING", result)
+		result := argumentNameFromDocsOrDefault([]string{"Write to `FILE`."}, "[=STRING]")
+		assert.Equal(t, "[=FILE]", result)
 	})
 }
 

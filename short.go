@@ -52,11 +52,17 @@ type ShortFlag struct {
 // documentation, if available, and otherwise returns the configured default.
 func argumentNameFromDocsOrDefault(description []string, defaultValue string) (output string) {
 	output = defaultValue
-	if len(description) > 0 && strings.HasPrefix(output, " ") {
+	if len(description) > 0 {
 		re := regexp.MustCompile("`([A-Z0-9_-]+)`")
 		m := re.FindStringSubmatch(description[0])
 		if len(m) > 1 {
-			output = " " + m[1]
+			output = m[1]
+			switch {
+			case strings.HasPrefix(defaultValue, " "):
+				output = " " + output
+			case strings.HasPrefix(defaultValue, "[=") && strings.HasSuffix(defaultValue, "]"):
+				output = "[=" + output + "]"
+			}
 		}
 	}
 	return

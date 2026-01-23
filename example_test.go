@@ -331,12 +331,6 @@ func ExampleFlagSet_digHelpCustom() {
 	fset.UsagePrinter = usage
 
 	// Add the supported flags
-	//
-	// Note: to support dig flags we need:
-	//
-	// 1. to fix `+short` to be a `+` introduced long option
-	//
-	// 2. a custom [*vflag.LongFlag] for `+https`
 	var (
 		httpsFlag = "/dns-query"
 		ipv4Flag  = false
@@ -344,33 +338,28 @@ func ExampleFlagSet_digHelpCustom() {
 		shortFlag = false
 	)
 
-	// Short-only flags for -4, -6, -h
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&ipv4Flag), '4', "Enable using IPv4."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&ipv6Flag), '6', "Enable using IPv6."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagAutoHelp(vflag.ValueAutoHelp{}, 'h', "Show this help message and exit."),
-	)
+	// Short-only flags for -4, -6, -h using AddShortFlag
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&ipv4Flag), '4', "Enable using IPv4."))
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&ipv6Flag), '6', "Enable using IPv6."))
+	fset.AddShortFlag(vflag.NewShortFlagAutoHelp(vflag.ValueAutoHelp{}, 'h', "Show this help message and exit."))
 
-	// Long-only flag for +https with optional value and `+` prefix
-	httpsLongFlag := vflag.NewLongFlagStringOptional(
+	// Long-only flag for +https with optional value using AddLongFlagDig
+	//
+	// Note: the backtick syntax (e.g., `URL_PATH`) in the first description paragraph
+	// overrides the default ArgumentName in help output. We also use @DEFAULT_VALUE@
+	// to show the default value in the help text.
+	fset.AddLongFlagDig(vflag.NewLongFlagStringOptional(
 		vflag.NewValueString(&httpsFlag), "https",
-		"Enable using DNS-over-HTTPS with optional URL path.",
-		"We use `/dns-query` if URL_PATH is omitted.",
-	)
-	httpsLongFlag.Prefix = "+"
-	httpsLongFlag.ArgumentName = "[=URL_PATH]"
-	fset.LongFlags = append(fset.LongFlags, httpsLongFlag)
+		"Enable using DNS-over-HTTPS with optional `URL_PATH`.",
+		"Default: @DEFAULT_VALUE@.",
+	))
 
-	// Long-only flag for +short with `+` prefix
-	shortLongFlag := vflag.NewLongFlagBool(
-		vflag.NewValueBool(&shortFlag), "short", "Write terse output.",
-	)
-	shortLongFlag.Prefix = "+"
-	fset.LongFlags = append(fset.LongFlags, shortLongFlag)
+	// Long-only flag for +short using AddLongFlagDig
+	fset.AddLongFlagDig(vflag.NewLongFlagBool(
+		vflag.NewValueBool(&shortFlag), "short",
+		"Write terse output.",
+		"Default: @DEFAULT_VALUE@.",
+	))
 
 	// Override Exit to transform it into a panic
 	fset.Exit = func(status int) {
@@ -408,13 +397,15 @@ func ExampleFlagSet_digHelpCustom() {
 	//
 	//     +https[=URL_PATH]
 	//
-	//         Enable using DNS-over-HTTPS with optional URL path.
+	//         Enable using DNS-over-HTTPS with optional `URL_PATH`.
 	//
-	//         We use `/dns-query` if URL_PATH is omitted.
+	//         Default: /dns-query.
 	//
 	//     +short[=true|false]
 	//
 	//         Write terse output.
+	//
+	//         Default: false.
 	//
 	// Examples
 	//
@@ -437,33 +428,22 @@ func ExampleFlagSet_digHelpDefault() {
 		shortFlag = false
 	)
 
-	// Short-only flags for -4, -6, -h
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&ipv4Flag), '4', "Enable using IPv4."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&ipv6Flag), '6', "Enable using IPv6."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagAutoHelp(vflag.ValueAutoHelp{}, 'h', "Show this help message and exit."),
-	)
+	// Short-only flags for -4, -6, -h using AddShortFlag
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&ipv4Flag), '4', "Enable using IPv4."))
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&ipv6Flag), '6', "Enable using IPv6."))
+	fset.AddShortFlag(vflag.NewShortFlagAutoHelp(vflag.ValueAutoHelp{}, 'h', "Show this help message and exit."))
 
-	// Long-only flag for +https with optional value and `+` prefix
-	httpsLongFlag := vflag.NewLongFlagStringOptional(
+	// Long-only flag for +https with optional value using AddLongFlagDig
+	fset.AddLongFlagDig(vflag.NewLongFlagStringOptional(
 		vflag.NewValueString(&httpsFlag), "https",
-		"Enable using DNS-over-HTTPS with optional URL path.",
-		"We use `/dns-query` if URL_PATH is omitted.",
-	)
-	httpsLongFlag.Prefix = "+"
-	httpsLongFlag.ArgumentName = "[=URL_PATH]"
-	fset.LongFlags = append(fset.LongFlags, httpsLongFlag)
+		"Enable using DNS-over-HTTPS with optional `URL_PATH`.",
+		"Default: @DEFAULT_VALUE@.",
+	))
 
-	// Long-only flag for +short with `+` prefix
-	shortLongFlag := vflag.NewLongFlagBool(
+	// Long-only flag for +short using AddLongFlagDig
+	fset.AddLongFlagDig(vflag.NewLongFlagBool(
 		vflag.NewValueBool(&shortFlag), "short", "Write terse output.",
-	)
-	shortLongFlag.Prefix = "+"
-	fset.LongFlags = append(fset.LongFlags, shortLongFlag)
+	))
 
 	// Override Exit to transform it into a panic
 	fset.Exit = func(status int) {
@@ -497,9 +477,9 @@ func ExampleFlagSet_digHelpDefault() {
 	//
 	//     +https[=URL_PATH]
 	//
-	//         Enable using DNS-over-HTTPS with optional URL path.
+	//         Enable using DNS-over-HTTPS with optional `URL_PATH`.
 	//
-	//         We use `/dns-query` if URL_PATH is omitted.
+	//         Default: /dns-query.
 	//
 	//     +short[=true|false]
 	//
@@ -521,23 +501,15 @@ func ExampleFlagSet_digInvalidFlag() {
 		shortFlag = false
 	)
 
-	// Short-only flags for -4, -6, -h
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&ipv4Flag), '4', "Enable using IPv4."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&ipv6Flag), '6', "Enable using IPv6."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagAutoHelp(vflag.ValueAutoHelp{}, 'h', "Show this help message and exit."),
-	)
+	// Short-only flags for -4, -6, -h using AddShortFlag
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&ipv4Flag), '4', "Enable using IPv4."))
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&ipv6Flag), '6', "Enable using IPv6."))
+	fset.AddShortFlag(vflag.NewShortFlagAutoHelp(vflag.ValueAutoHelp{}, 'h', "Show this help message and exit."))
 
-	// Long-only flag for +short with `+` prefix
-	shortLongFlag := vflag.NewLongFlagBool(
+	// Long-only flag for +short using AddLongFlagDig
+	fset.AddLongFlagDig(vflag.NewLongFlagBool(
 		vflag.NewValueBool(&shortFlag), "short", "Write terse output.",
-	)
-	shortLongFlag.Prefix = "+"
-	fset.LongFlags = append(fset.LongFlags, shortLongFlag)
+	))
 
 	// Override Exit to transform it into a panic
 	fset.Exit = func(status int) {
@@ -574,35 +546,24 @@ func ExampleFlagSet_digSuccess() {
 		shortFlag = false
 	)
 
-	// Short-only flags for -4, -6, -h
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&ipv4Flag), '4', "Enable using IPv4."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&ipv6Flag), '6', "Enable using IPv6."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagAutoHelp(vflag.ValueAutoHelp{}, 'h', "Show this help message and exit."),
-	)
+	// Short-only flags for -4, -6, -h using AddShortFlag
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&ipv4Flag), '4', "Enable using IPv4."))
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&ipv6Flag), '6', "Enable using IPv6."))
+	fset.AddShortFlag(vflag.NewShortFlagAutoHelp(vflag.ValueAutoHelp{}, 'h', "Show this help message and exit."))
 
-	// Long-only flag for +https with optional value and `+` prefix
-	httpsLongFlag := vflag.NewLongFlagStringOptional(
+	// Long-only flag for +https with optional value using AddLongFlagDig
+	fset.AddLongFlagDig(vflag.NewLongFlagStringOptional(
 		vflag.NewValueString(&httpsFlag), "https",
-		"Enable using DNS-over-HTTPS with optional URL path.",
-		"We use `/dns-query` if URL_PATH is omitted.",
-	)
-	httpsLongFlag.Prefix = "+"
-	httpsLongFlag.ArgumentName = "[=URL_PATH]"
-	fset.LongFlags = append(fset.LongFlags, httpsLongFlag)
+		"Enable using DNS-over-HTTPS with optional `URL_PATH`.",
+		"Default: @DEFAULT_VALUE@.",
+	))
 
-	// Long-only flag for +short with `+` prefix
-	shortLongFlag := vflag.NewLongFlagBool(
+	// Long-only flag for +short using AddLongFlagDig
+	fset.AddLongFlagDig(vflag.NewLongFlagBool(
 		vflag.NewValueBool(&shortFlag), "short", "Write terse output.",
-	)
-	shortLongFlag.Prefix = "+"
-	fset.LongFlags = append(fset.LongFlags, shortLongFlag)
+	))
 
-	// Invoke with `-h`
+	// Invoke with command line arguments
 	fset.Parse([]string{"IN", "A", "@8.8.8.8", "+https", "www.example.com", "+short", "-4"})
 
 	// Print the parsed flags
@@ -647,20 +608,12 @@ func ExampleFlagSet_tarHelpCustom() {
 		verboseFlag = false
 	)
 
-	// Short-only flags (tar style)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&createFlag), 'c', "Create a new archive."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Specify the output file path."),
-	)
+	// Short-only flags (tar style) using AddShortFlag
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&createFlag), 'c', "Create a new archive."))
+	fset.AddShortFlag(vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Specify the output file path."))
 	fset.AutoHelp('h', "help", "Show this help message and exit.")
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&verboseFlag), 'v', "Print files added to the archive to the stdout."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&gzipFlag), 'z', "Compress using gzip."),
-	)
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&verboseFlag), 'v', "Print files added to the archive to the stdout."))
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&gzipFlag), 'z', "Compress using gzip."))
 
 	// Override Exit to transform it into a panic
 	fset.Exit = func(status int) {
@@ -725,20 +678,12 @@ func ExampleFlagSet_tarHelpDefault() {
 		verboseFlag = false
 	)
 
-	// Short-only flags (tar style)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&createFlag), 'c', "Create a new archive."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Specify the output file path."),
-	)
+	// Short-only flags (tar style) using AddShortFlag
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&createFlag), 'c', "Create a new archive."))
+	fset.AddShortFlag(vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Specify the output file path."))
 	fset.AutoHelp('h', "help", "Show this help message and exit.")
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&verboseFlag), 'v', "Print files added to the archive to the stdout."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&gzipFlag), 'z', "Compress using gzip."),
-	)
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&verboseFlag), 'v', "Print files added to the archive to the stdout."))
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&gzipFlag), 'z', "Compress using gzip."))
 
 	// Override Exit to transform it into a panic
 	fset.Exit = func(status int) {
@@ -795,20 +740,12 @@ func ExampleFlagSet_tarMissingOptionArgument() {
 		verboseFlag = false
 	)
 
-	// Short-only flags (tar style)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&createFlag), 'c', "Create a new archive."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Specify the output file path."),
-	)
+	// Short-only flags (tar style) using AddShortFlag
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&createFlag), 'c', "Create a new archive."))
+	fset.AddShortFlag(vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Specify the output file path."))
 	fset.AutoHelp('h', "help", "Show this help message and exit.")
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&verboseFlag), 'v', "Print files added to the archive to the stdout."),
-	)
-	fset.ShortFlags = append(fset.ShortFlags,
-		vflag.NewShortFlagBool(vflag.NewValueBool(&gzipFlag), 'z', "Compress using gzip."),
-	)
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&verboseFlag), 'v', "Print files added to the archive to the stdout."))
+	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&gzipFlag), 'z', "Compress using gzip."))
 
 	// Override Exit to transform it into a panic
 	fset.Exit = func(status int) {
@@ -851,32 +788,32 @@ func ExampleFlagSet_goHelpCustom() {
 		vFlag     = false
 	)
 
-	// Long-only flags with `-` prefix (Go style)
+	// Long-only flags with `-` prefix (Go style) using AddLongFlag
 	countLongFlag := vflag.NewLongFlagInt64Required(
 		vflag.NewValueInt64(&countFlag), "count", "Set to 1 to avoid using the test cache.",
 	)
 	countLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, countLongFlag)
+	fset.AddLongFlag(countLongFlag)
 
 	hLongFlag := vflag.NewLongFlagAutoHelp(vflag.ValueAutoHelp{}, "h", "Show this help message and exit.")
 	hLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, hLongFlag)
+	fset.AddLongFlag(hLongFlag)
 
 	helpLongFlag := vflag.NewLongFlagAutoHelp(vflag.ValueAutoHelp{}, "help", "Alias for -h.")
 	helpLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, helpLongFlag)
+	fset.AddLongFlag(helpLongFlag)
 
 	raceLongFlag := vflag.NewLongFlagBool(
 		vflag.NewValueBool(&raceFlag), "race", "Run tests using the race detector.",
 	)
 	raceLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, raceLongFlag)
+	fset.AddLongFlag(raceLongFlag)
 
 	vLongFlag := vflag.NewLongFlagBool(
 		vflag.NewValueBool(&vFlag), "v", "Print details about the tests progress and results.",
 	)
 	vLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, vLongFlag)
+	fset.AddLongFlag(vLongFlag)
 
 	// Override Exit to transform it into a panic
 	fset.Exit = func(status int) {
@@ -940,32 +877,32 @@ func ExampleFlagSet_goHelpDefault() {
 		vFlag     = false
 	)
 
-	// Long-only flags with `-` prefix (Go style)
+	// Long-only flags with `-` prefix (Go style) using AddLongFlag
 	countLongFlag := vflag.NewLongFlagInt64Required(
 		vflag.NewValueInt64(&countFlag), "count", "Set to 1 to avoid using the test cache.",
 	)
 	countLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, countLongFlag)
+	fset.AddLongFlag(countLongFlag)
 
 	hLongFlag := vflag.NewLongFlagAutoHelp(vflag.ValueAutoHelp{}, "h", "Show this help message and exit.")
 	hLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, hLongFlag)
+	fset.AddLongFlag(hLongFlag)
 
 	helpLongFlag := vflag.NewLongFlagAutoHelp(vflag.ValueAutoHelp{}, "help", "Alias for -h.")
 	helpLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, helpLongFlag)
+	fset.AddLongFlag(helpLongFlag)
 
 	raceLongFlag := vflag.NewLongFlagBool(
 		vflag.NewValueBool(&raceFlag), "race", "Run tests using the race detector.",
 	)
 	raceLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, raceLongFlag)
+	fset.AddLongFlag(raceLongFlag)
 
 	vLongFlag := vflag.NewLongFlagBool(
 		vflag.NewValueBool(&vFlag), "v", "Print details about the tests progress and results.",
 	)
 	vLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, vLongFlag)
+	fset.AddLongFlag(vLongFlag)
 
 	// Override Exit to transform it into a panic
 	fset.Exit = func(status int) {
@@ -1021,32 +958,32 @@ func ExampleFlagSet_goSuccess() {
 		vFlag     = false
 	)
 
-	// Long-only flags with `-` prefix (Go style)
+	// Long-only flags with `-` prefix (Go style) using AddLongFlag
 	countLongFlag := vflag.NewLongFlagInt64Required(
 		vflag.NewValueInt64(&countFlag), "count", "Set to 1 to avoid using the test cache.",
 	)
 	countLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, countLongFlag)
+	fset.AddLongFlag(countLongFlag)
 
 	hLongFlag := vflag.NewLongFlagAutoHelp(vflag.ValueAutoHelp{}, "h", "Show this help message and exit.")
 	hLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, hLongFlag)
+	fset.AddLongFlag(hLongFlag)
 
 	helpLongFlag := vflag.NewLongFlagAutoHelp(vflag.ValueAutoHelp{}, "help", "Alias for -h.")
 	helpLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, helpLongFlag)
+	fset.AddLongFlag(helpLongFlag)
 
 	raceLongFlag := vflag.NewLongFlagBool(
 		vflag.NewValueBool(&raceFlag), "race", "Run tests using the race detector.",
 	)
 	raceLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, raceLongFlag)
+	fset.AddLongFlag(raceLongFlag)
 
 	vLongFlag := vflag.NewLongFlagBool(
 		vflag.NewValueBool(&vFlag), "v", "Print details about the tests progress and results.",
 	)
 	vLongFlag.Prefix = "-"
-	fset.LongFlags = append(fset.LongFlags, vLongFlag)
+	fset.AddLongFlag(vLongFlag)
 
 	// Invoke with command line arguments.
 	//
