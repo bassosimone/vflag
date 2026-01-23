@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/bassosimone/must"
-	"github.com/bassosimone/runtimex"
 	"github.com/bassosimone/textwrap"
 )
 
@@ -33,7 +32,7 @@ func (fs *FlagSet) PrintUsageError(w io.Writer, err error) {
 }
 
 func (up *DefaultUsagePrinter) flagsName(fset *FlagSet) (output string) {
-	if f := fset.Flags(); len(f) > 0 {
+	if len(fset.ShortFlags) > 0 || len(fset.LongFlags) > 0 {
 		output = " [flags]"
 	}
 	return output
@@ -41,25 +40,16 @@ func (up *DefaultUsagePrinter) flagsName(fset *FlagSet) (output string) {
 
 // HelpInvocation returns the string with which to obtain help.
 func (fs *FlagSet) HelpInvocation() string {
-	for _, fx := range fs.flags {
-		if _, ok := fx.Value.(ValueAutoHelp); !ok {
-			continue
+	// Prefer long flags for the help invocation hint
+	for _, fx := range fs.LongFlags {
+		if _, ok := fx.Value.(ValueAutoHelp); ok {
+			return fs.ProgramName + " " + fx.Prefix + fx.Name
 		}
-
-		var (
-			prefix string
-			name   string
-		)
-		if fx.LongPrefix != "" && fx.LongName != "" {
-			prefix, name = fx.LongPrefix, fx.LongName
-		} else if fx.ShortPrefix != "" && fx.ShortName != 0 {
-			prefix, name = fx.ShortPrefix, string(fx.ShortName)
+	}
+	for _, fx := range fs.ShortFlags {
+		if _, ok := fx.Value.(ValueAutoHelp); ok {
+			return fs.ProgramName + " " + fx.Prefix + string(fx.Name)
 		}
-
-		// Note that [*FlagSet.AddFlag] rejects empty flags
-		runtimex.Assert(prefix != "" && name != "")
-
-		return fs.ProgramName + " " + prefix + name
 	}
 	return ""
 }
@@ -168,6 +158,18 @@ type DefaultUsagePrinter struct {
 	PositionalArgumentsUsage string
 }
 
+// usageFlag is a flag seen by [*DefaultUsagePrinter.PrintUsageString].
+type usageFlag struct {
+	// synpsis contains the line describing the flag usage.
+	synopsis string
+
+	// aliases contains the synopsis of the flag aliases.
+	aliases []string
+
+	// description contains the formatted flag description.
+	description string
+}
+
 // PrintUsageString implements [vflag.UsagePrinter].
 //
 // This method panics on I/O error.
@@ -185,31 +187,57 @@ func (up *DefaultUsagePrinter) PrintUsageString(fset *FlagSet, w io.Writer) {
 	}
 
 	// ## Flags
-	if flags := fset.Flags(); len(flags) > 0 {
+	if len(fset.ShortFlags) > 0 || len(fset.LongFlags) > 0 {
+		// Create a list of all the usage flags
+		uflags := make([]*usageFlag, 0, len(fset.ShortFlags)+len(fset.LongFlags))
+
+		for _, fx := range fset.ShortFlags {
+			var sb strings.Builder
+			for _, dentry := range fx.Description {
+				up.div0(&sb, textwrap.Do(dentry, wrapAtColumn, indent8))
+			}
+			description := sb.String()
+			description = strings.ReplaceAll(description, "@DEFAULT_VALUE@", fx.Value.String())
+			uflags = append(uflags, &usageFlag{
+				synopsis:    fx.Usage(),
+				description: description,
+			})
+		}
+
+		for _, fx := range fset.LongFlags {
+			var sb strings.Builder
+			for _, dentry := range fx.Description {
+				up.div0(&sb, textwrap.Do(dentry, wrapAtColumn, indent8))
+			}
+			description := sb.String()
+			description = strings.ReplaceAll(description, "@DEFAULT_VALUE@", fx.Value.String())
+			uflags = append(uflags, &usageFlag{
+				synopsis:    fx.Usage(),
+				description: description,
+			})
+		}
+
+		// Map unique descriptions to usage flags
+		udescr := make(map[string]*usageFlag, len(uflags))
+		for _, uflag := range uflags {
+			ref, ok := udescr[uflag.description]
+			if !ok {
+				udescr[uflag.description] = uflag
+				continue
+			}
+			ref.aliases = append(ref.aliases, uflag.synopsis)
+			uflag.synopsis, uflag.description = "", ""
+		}
+
+		// Print the flags with non-empty descriptions
 		up.div0(w, "Flags")
-		for _, fentry := range flags {
-			short, long, value := fentry.UsageShort(), fentry.UsageLong(), fentry.Value
-			defaultValue := fmt.Sprintf(" (default: `%s`)", value)
-			if _, ok := fentry.Value.(ValueAutoHelp); ok {
-				defaultValue = ""
+		for _, uflag := range uflags {
+			synopsisList := append([]string{uflag.synopsis}, uflag.aliases...)
+			if uflag.description == "" {
+				continue
 			}
-			var formatted string
-			switch {
-			case short != "" && long != "":
-				formatted = fmt.Sprintf("    %s, %s%s", short, long, defaultValue)
-			case short != "":
-				if _, ok := fentry.Value.(ValueBool); ok {
-					defaultValue = ""
-				}
-				formatted = fmt.Sprintf("    %s%s", short, defaultValue)
-			case long != "":
-				formatted = fmt.Sprintf("    %s%s", long, defaultValue)
-			}
-			runtimex.Assert(formatted != "") // [*vflag.FlagSet.AddFlag] rejects empty flags
-			up.div0(w, formatted)
-			for _, dentry := range fentry.Description {
-				up.div0(w, textwrap.Do(dentry, wrapAtColumn, indent8))
-			}
+			up.div1(w, strings.Join(synopsisList, ", "))
+			must.Fprintf(w, "%s", uflag.description)
 		}
 	}
 

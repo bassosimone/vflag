@@ -33,9 +33,8 @@ const (
 // FlagSet allows to parse flags from the command line. The zero value is not
 // ready to use. Construct using the [NewFlagSet] constructor.
 //
-// Note: a [*FlagSet] where you have not added any flags through methods
-// like [*FlagSet.BoolVar], [*FlagSet.StringVar], etc defaults to parsing options
-// using GNU conventions. That is, if you run the related program with:
+// Note: a [*FlagSet] where you have not added any flags defaults to parsing
+// options using GNU conventions. That is, if you run the related program with:
 //
 //	./program --verbose
 //
@@ -76,15 +75,21 @@ type FlagSet struct {
 	// becomes unnecessary and the UX is improved.
 	DisablePermute bool
 
+	// ErrorHandling is the [ErrorHandling] policy.
+	//
+	// [NewFlagSet] initializes this field to [ContinueOnError].
+	ErrorHandling ErrorHandling
+
 	// Exit is the function to call with the [ExitOnError] policy.
 	//
 	// [NewFlagSet] initializes this field to [os.Exit].
 	Exit func(status int)
 
-	// ErrorHandling is the [ErrorHandling] policy.
+	// LongFlags contains the long flags to parse.
 	//
-	// [NewFlagSet] initializes this field to [ContinueOnError].
-	ErrorHandling ErrorHandling
+	// Long flags are multi-character flags (e.g., `--verbose`, `--output`)
+	// that cannot be grouped together.
+	LongFlags []*LongFlag
 
 	// MaxPositionalArgs is the maximum number of positional arguments.
 	//
@@ -116,6 +121,12 @@ type FlagSet struct {
 	// [NewFlagSet] initializes this field to the given program name.
 	ProgramName string
 
+	// ShortFlags contains the short flags to parse.
+	//
+	// Short flags are single-character flags (e.g., `-v`, `-o`) that can be
+	// grouped together on the command line.
+	ShortFlags []*ShortFlag
+
 	// Stderr is the [io.Writer] to use as the stderr.
 	//
 	// [NewFlagSet] initializes this field to [os.Stderr].
@@ -139,10 +150,7 @@ type FlagSet struct {
 	// We use this field with [ExitOnError] policy.
 	UsagePrinter UsagePrinter
 
-	// flags contains the [*Flag] to parse.
-	flags []*Flag
-
-	// positional buffers the positional arguments.
+	// positionals buffers the positional arguments.
 	positionals []string
 }
 
@@ -152,21 +160,23 @@ type FlagSet struct {
 // defaults in the [*FlagSet] documentation.
 func NewFlagSet(progname string, handling ErrorHandling) *FlagSet {
 	const (
-		expectedFlags       = 32
+		expectedLongFlags   = 16
 		expectedPositionals = 8
+		expectedShortFlags  = 16
 	)
 	return &FlagSet{
 		DisablePermute:            false,
-		Exit:                      os.Exit,
 		ErrorHandling:             handling,
+		Exit:                      os.Exit,
+		LongFlags:                 make([]*LongFlag, 0, expectedLongFlags),
 		MaxPositionalArgs:         0,
 		MinPositionalArgs:         0,
 		OptionsArgumentsSeparator: "--",
 		ProgramName:               progname,
+		ShortFlags:                make([]*ShortFlag, 0, expectedShortFlags),
 		Stderr:                    os.Stderr,
 		Stdout:                    os.Stdout,
 		UsagePrinter:              &DefaultUsagePrinter{},
-		flags:                     make([]*Flag, 0, expectedFlags),
 		positionals:               make([]string, 0, expectedPositionals),
 	}
 }
@@ -182,21 +192,6 @@ func (fs *FlagSet) Args() []string {
 	return fs.positionals
 }
 
-// Flags returns the [*Flag] configured so far.
-func (fs *FlagSet) Flags() []*Flag {
-	return fs.flags
-}
-
-// AddFlag adds the given [*Flag] to the [*FlagSet].
-//
-// Note that this method PANICS if the flag is invalid (i.e., if neither the short
-// option prefix and name nor the long option prefix and name are set).
-func (fs *FlagSet) AddFlag(fx *Flag) {
-	valid := (fx.ShortPrefix != "" && fx.ShortName != 0) || (fx.LongPrefix != "" && fx.LongName != "")
-	runtimex.Assert(valid)
-	fs.flags = append(fs.flags, fx)
-}
-
 // Parse parses the given command line arguments, It assigns positional arguments
 // and each flag [Value] as a side effect of parsing.
 //
@@ -205,6 +200,8 @@ func (fs *FlagSet) AddFlag(fx *Flag) {
 //
 // Depending on the [ErrorHandling] policy, on failure, this method may return the
 // error, invoke [os.Exit], or call panic with the error that occurred.
+//
+// This method panics if a long flag has the same name as a short flag.
 func (fs *FlagSet) Parse(args []string) error {
 	return fs.maybeHandleError(fs.parse(args))
 }
@@ -225,15 +222,22 @@ func (fs *FlagSet) parse(args []string) error {
 		OptionsArgumentsSeparator: fs.OptionsArgumentsSeparator,
 		Options:                   []*flagparser.Option{},
 	}
-	pview := make(map[string]*Flag)
-	for _, fx := range fs.flags {
-		px.Options = append(px.Options, fx.MakeOptions(fx)...)
-		if fx.ShortPrefix != "" && fx.ShortName != 0 {
-			pview[string(fx.ShortName)] = fx
-		}
-		if fx.LongPrefix != "" && fx.LongName != "" {
-			pview[fx.LongName] = fx
-		}
+
+	// build options and value map from short flags
+	pview := make(map[string]Value)
+	for _, fx := range fs.ShortFlags {
+		opt := fx.MakeOption(fx)
+		px.Options = append(px.Options, opt)
+		pview[opt.Name] = fx.Value
+	}
+
+	// build options and value map from long flags
+	for _, fx := range fs.LongFlags {
+		opt := fx.MakeOption(fx)
+		_, found := pview[opt.Name]
+		runtimex.Assert(!found)
+		px.Options = append(px.Options, opt)
+		pview[opt.Name] = fx.Value
 	}
 
 	// parse the command line
@@ -252,18 +256,17 @@ func (fs *FlagSet) parse(args []string) error {
 
 		// option: find the corresponding value and attempt to set it
 		case flagparser.ValueOption:
-			// attempt to get the right parser view
 			optname := value.Option.Name
-			flag, found := pview[optname]
+			val, found := pview[optname]
 			runtimex.Assert(found) // should not happen
 
 			// assign a value to the flag
-			if err := flag.Value.Set(value.Value); err != nil {
+			if err := val.Set(value.Value); err != nil {
 				return err
 			}
 
 			// detect [ValueAutoHelp] and transform it to [ErrHelp]
-			if _, ok := flag.Value.(ValueAutoHelp); ok {
+			if _, ok := val.(ValueAutoHelp); ok {
 				return ErrHelp
 			}
 		}

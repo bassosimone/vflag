@@ -36,9 +36,46 @@ func TestFlagSetMaybeHandleError(t *testing.T) {
 	})
 }
 
-func TestFlagSetAddInvalidFlagPanics(t *testing.T) {
-	fset := NewFlagSet("test", ExitOnError)
+func TestFlagSetParsePanicsOnDuplicateName(t *testing.T) {
+	fset := NewFlagSet("test", ContinueOnError)
+
+	// Add a short flag named 'v'
+	var verbose bool
+	fset.ShortFlags = append(fset.ShortFlags, NewShortFlagBool(
+		NewValueBool(&verbose), 'v', "Enable verbose output.",
+	))
+
+	// Add a long flag also named 'v' - this should panic
+	var version bool
+	fset.LongFlags = append(fset.LongFlags, NewLongFlagBool(
+		NewValueBool(&version), "v", "Show version.",
+	))
+
 	assert.Panics(t, func() {
-		fset.AddFlag(&Flag{}) // add completely empty flag
+		fset.Parse([]string{})
+	})
+}
+
+func TestFlagSetParseShortFlagPanicsOnEmptyPrefix(t *testing.T) {
+	fset := NewFlagSet("test", ContinueOnError)
+	var verbose bool
+	sf := NewShortFlagBool(NewValueBool(&verbose), 'v', "Enable verbose output.")
+	sf.Prefix = "" // break it
+	fset.ShortFlags = append(fset.ShortFlags, sf)
+
+	assert.Panics(t, func() {
+		fset.Parse([]string{})
+	})
+}
+
+func TestFlagSetParseLongFlagPanicsOnEmptyPrefix(t *testing.T) {
+	fset := NewFlagSet("test", ContinueOnError)
+	var verbose bool
+	lf := NewLongFlagBool(NewValueBool(&verbose), "verbose", "Enable verbose output.")
+	lf.Prefix = "" // break it
+	fset.LongFlags = append(fset.LongFlags, lf)
+
+	assert.Panics(t, func() {
+		fset.Parse([]string{})
 	})
 }
