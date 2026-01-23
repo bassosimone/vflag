@@ -287,7 +287,7 @@ func ExampleFlagSet_curlSuccess() {
 	fset.BoolVar(&failFlag, 'f', "fail", "Fail fast with no output at all on server errors.")
 	fset.BoolVar(&locationFlag, 'L', "location", "Follow HTTP redirections.")
 	fset.AutoHelp('h', "help", "Show this help message and exit.")
-	fset.StringVar(&outputFlag, 'o', "output", "Write output to the file indicated by VALUE.")
+	fset.StringVar(&outputFlag, 'o', "output", "Write output to the given `FILE`.")
 	fset.BoolVar(&showErrorFlag, 'S', "show-error", "Show an error message, even when silent, on failure.")
 	fset.BoolVar(&silentFlag, 's', "silent", "Silent or quiet mode.")
 
@@ -610,7 +610,7 @@ func ExampleFlagSet_tarHelpCustom() {
 
 	// Short-only flags (tar style) using AddShortFlag
 	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&createFlag), 'c', "Create a new archive."))
-	fset.AddShortFlag(vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Specify the output file path."))
+	fset.AddShortFlag(vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Write to `FILE`.", "Default: @DEFAULT_VALUE@."))
 	fset.AutoHelp('h', "help", "Show this help message and exit.")
 	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&verboseFlag), 'v', "Print files added to the archive to the stdout."))
 	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&gzipFlag), 'z', "Compress using gzip."))
@@ -641,9 +641,11 @@ func ExampleFlagSet_tarHelpCustom() {
 	//
 	//         Create a new archive.
 	//
-	//     -f STRING
+	//     -f FILE
 	//
-	//         Specify the output file path.
+	//         Write to `FILE`.
+	//
+	//         Default: -.
 	//
 	//     -h, --help
 	//
@@ -680,7 +682,7 @@ func ExampleFlagSet_tarHelpDefault() {
 
 	// Short-only flags (tar style) using AddShortFlag
 	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&createFlag), 'c', "Create a new archive."))
-	fset.AddShortFlag(vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Specify the output file path."))
+	fset.AddShortFlag(vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Write to `FILE`."))
 	fset.AutoHelp('h', "help", "Show this help message and exit.")
 	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&verboseFlag), 'v', "Print files added to the archive to the stdout."))
 	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&gzipFlag), 'z', "Compress using gzip."))
@@ -707,9 +709,9 @@ func ExampleFlagSet_tarHelpDefault() {
 	//
 	//         Create a new archive.
 	//
-	//     -f STRING
+	//     -f FILE
 	//
-	//         Specify the output file path.
+	//         Write to `FILE`.
 	//
 	//     -h, --help
 	//
@@ -742,7 +744,7 @@ func ExampleFlagSet_tarMissingOptionArgument() {
 
 	// Short-only flags (tar style) using AddShortFlag
 	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&createFlag), 'c', "Create a new archive."))
-	fset.AddShortFlag(vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Specify the output file path."))
+	fset.AddShortFlag(vflag.NewShortFlagString(vflag.NewValueString(&fileFlag), 'f', "Write to `FILE`."))
 	fset.AutoHelp('h', "help", "Show this help message and exit.")
 	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&verboseFlag), 'v', "Print files added to the archive to the stdout."))
 	fset.AddShortFlag(vflag.NewShortFlagBool(vflag.NewValueBool(&gzipFlag), 'z', "Compress using gzip."))
@@ -790,7 +792,7 @@ func ExampleFlagSet_goHelpCustom() {
 
 	// Long-only flags with `-` prefix (Go style) using AddLongFlag
 	countLongFlag := vflag.NewLongFlagInt64Required(
-		vflag.NewValueInt64(&countFlag), "count", "Set to 1 to avoid using the test cache.",
+		vflag.NewValueInt64(&countFlag), "count", "Run tests `N` times.", "Default: @DEFAULT_VALUE@.",
 	)
 	countLongFlag.Prefix = "-"
 	fset.AddLongFlag(countLongFlag)
@@ -804,13 +806,13 @@ func ExampleFlagSet_goHelpCustom() {
 	fset.AddLongFlag(helpLongFlag)
 
 	raceLongFlag := vflag.NewLongFlagBool(
-		vflag.NewValueBool(&raceFlag), "race", "Run tests using the race detector.",
+		vflag.NewValueBool(&raceFlag), "race", "Run tests using the race detector.", "Default: @DEFAULT_VALUE@.",
 	)
 	raceLongFlag.Prefix = "-"
 	fset.AddLongFlag(raceLongFlag)
 
 	vLongFlag := vflag.NewLongFlagBool(
-		vflag.NewValueBool(&vFlag), "v", "Print details about the tests progress and results.",
+		vflag.NewValueBool(&vFlag), "v", "Verbose output.", "Default: @DEFAULT_VALUE@.",
 	)
 	vLongFlag.Prefix = "-"
 	fset.AddLongFlag(vLongFlag)
@@ -837,9 +839,11 @@ func ExampleFlagSet_goHelpCustom() {
 	//
 	// Flags
 	//
-	//     -count INT64
+	//     -count N
 	//
-	//         Set to 1 to avoid using the test cache.
+	//         Run tests `N` times.
+	//
+	//         Default: 0.
 	//
 	//     -h
 	//
@@ -853,9 +857,13 @@ func ExampleFlagSet_goHelpCustom() {
 	//
 	//         Run tests using the race detector.
 	//
+	//         Default: false.
+	//
 	//     -v[=true|false]
 	//
-	//         Print details about the tests progress and results.
+	//         Verbose output.
+	//
+	//         Default: false.
 	//
 	// Examples
 	//
@@ -879,7 +887,7 @@ func ExampleFlagSet_goHelpDefault() {
 
 	// Long-only flags with `-` prefix (Go style) using AddLongFlag
 	countLongFlag := vflag.NewLongFlagInt64Required(
-		vflag.NewValueInt64(&countFlag), "count", "Set to 1 to avoid using the test cache.",
+		vflag.NewValueInt64(&countFlag), "count", "Run tests `N` times.",
 	)
 	countLongFlag.Prefix = "-"
 	fset.AddLongFlag(countLongFlag)
@@ -899,7 +907,7 @@ func ExampleFlagSet_goHelpDefault() {
 	fset.AddLongFlag(raceLongFlag)
 
 	vLongFlag := vflag.NewLongFlagBool(
-		vflag.NewValueBool(&vFlag), "v", "Print details about the tests progress and results.",
+		vflag.NewValueBool(&vFlag), "v", "Verbose output.",
 	)
 	vLongFlag.Prefix = "-"
 	fset.AddLongFlag(vLongFlag)
@@ -922,9 +930,9 @@ func ExampleFlagSet_goHelpDefault() {
 	//
 	// Flags
 	//
-	//     -count INT64
+	//     -count N
 	//
-	//         Set to 1 to avoid using the test cache.
+	//         Run tests `N` times.
 	//
 	//     -h
 	//
@@ -940,7 +948,7 @@ func ExampleFlagSet_goHelpDefault() {
 	//
 	//     -v[=true|false]
 	//
-	//         Print details about the tests progress and results.
+	//         Verbose output.
 }
 
 // This example shows a successful invocation of a go-like tool.
@@ -960,7 +968,7 @@ func ExampleFlagSet_goSuccess() {
 
 	// Long-only flags with `-` prefix (Go style) using AddLongFlag
 	countLongFlag := vflag.NewLongFlagInt64Required(
-		vflag.NewValueInt64(&countFlag), "count", "Set to 1 to avoid using the test cache.",
+		vflag.NewValueInt64(&countFlag), "count", "Run tests `N` times.",
 	)
 	countLongFlag.Prefix = "-"
 	fset.AddLongFlag(countLongFlag)
@@ -980,7 +988,7 @@ func ExampleFlagSet_goSuccess() {
 	fset.AddLongFlag(raceLongFlag)
 
 	vLongFlag := vflag.NewLongFlagBool(
-		vflag.NewValueBool(&vFlag), "v", "Print details about the tests progress and results.",
+		vflag.NewValueBool(&vFlag), "v", "Verbose output.",
 	)
 	vLongFlag.Prefix = "-"
 	fset.AddLongFlag(vLongFlag)
