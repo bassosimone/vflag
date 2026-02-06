@@ -223,7 +223,7 @@ func (fs *FlagSet) Uint32Var(vp *uint32, shortName byte, longName string, helpTe
 // If shortName is not zero, a short flag is added to ShortFlags.
 // If longName is not empty, a long flag is added to LongFlags.
 func (fs *FlagSet) Uint64Var(vp *uint64, shortName byte, longName string, helpText ...string) {
-	value := NewValueUInt64(vp)
+	value := NewValueUint64(vp)
 	if shortName != 0 {
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagUint64(value, shortName, helpText...))
 	}

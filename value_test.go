@@ -189,9 +189,9 @@ func TestValueUint32(t *testing.T) {
 	assert.Equal(t, "7", value.String())
 }
 
-func TestValueUInt64(t *testing.T) {
+func TestValueUint64(t *testing.T) {
 	var raw uint64
-	value := NewValueUInt64(&raw)
+	value := NewValueUint64(&raw)
 
 	assert.Equal(t, "0", value.String())
 	require.NoError(t, value.Set("7"))

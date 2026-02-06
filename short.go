@@ -368,13 +368,13 @@ func NewShortFlagUint32(value ValueUint32, name byte, helpText ...string) *Short
 	}
 }
 
-// NewShortFlagUint64 constructs a new [*ShortFlag] bound to a [ValueUInt64].
+// NewShortFlagUint64 constructs a new [*ShortFlag] bound to a [ValueUint64].
 //
 // This constructor sets the flag prefix to `-`. If you need a different prefix,
 // update the `Prefix` field in the returned [*ShortFlag] structure.
 //
 // The ArgumentName is set to ` UINT64` by default.
-func NewShortFlagUint64(value ValueUInt64, name byte, helpText ...string) *ShortFlag {
+func NewShortFlagUint64(value ValueUint64, name byte, helpText ...string) *ShortFlag {
 	return &ShortFlag{
 		Description:  helpText,
 		ArgumentName: " UINT64",

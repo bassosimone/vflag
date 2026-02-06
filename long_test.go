@@ -219,7 +219,7 @@ func TestNewLongFlagUint32(t *testing.T) {
 
 func TestNewLongFlagUint64(t *testing.T) {
 	var v uint64
-	lf := NewLongFlagUint64(NewValueUInt64(&v), "limit", "Set limit.")
+	lf := NewLongFlagUint64(NewValueUint64(&v), "limit", "Set limit.")
 
 	assert.Equal(t, "limit", lf.Name)
 	assert.Equal(t, " UINT64", lf.ArgumentName)

@@ -375,13 +375,13 @@ func NewLongFlagUint32(value ValueUint32, name string, helpText ...string) *Long
 	}
 }
 
-// NewLongFlagUint64 constructs a new [*LongFlag] bound to a [ValueUInt64].
+// NewLongFlagUint64 constructs a new [*LongFlag] bound to a [ValueUint64].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` UINT64` by default.
-func NewLongFlagUint64(value ValueUInt64, name string, helpText ...string) *LongFlag {
+func NewLongFlagUint64(value ValueUint64, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " UINT64",

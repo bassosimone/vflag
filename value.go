@@ -449,22 +449,22 @@ func (v ValueUint32) String() string {
 	return strconv.FormatUint(uint64(*v.vp), 10)
 }
 
-// ValueUInt64 implements [Value] for uint64.
+// ValueUint64 implements [Value] for uint64.
 //
-// Construct using [NewValueUInt64].
-type ValueUInt64 struct {
+// Construct using [NewValueUint64].
+type ValueUint64 struct {
 	vp *uint64
 }
 
-// NewValueUInt64 constructs a new [ValueUInt64] using an underlying uint64.
-func NewValueUInt64(vp *uint64) ValueUInt64 {
-	return ValueUInt64{vp}
+// NewValueUint64 constructs a new [ValueUint64] using an underlying uint64.
+func NewValueUint64(vp *uint64) ValueUint64 {
+	return ValueUint64{vp}
 }
 
-var _ Value = ValueUInt64{}
+var _ Value = ValueUint64{}
 
 // Set implements [Value].
-func (v ValueUInt64) Set(value string) error {
+func (v ValueUint64) Set(value string) error {
 	parsed, err := strconv.ParseUint(value, 10, 64)
 	if err != nil {
 		return err
@@ -474,6 +474,6 @@ func (v ValueUInt64) Set(value string) error {
 }
 
 // String implements [fmt.Stringer].
-func (v ValueUInt64) String() string {
+func (v ValueUint64) String() string {
 	return strconv.FormatUint(*v.vp, 10)
 }

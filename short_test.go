@@ -235,7 +235,7 @@ func TestNewShortFlagUint32(t *testing.T) {
 
 func TestNewShortFlagUint64(t *testing.T) {
 	var v uint64
-	sf := NewShortFlagUint64(NewValueUInt64(&v), 'l', "Set limit.")
+	sf := NewShortFlagUint64(NewValueUint64(&v), 'l', "Set limit.")
 
 	assert.Equal(t, byte('l'), sf.Name)
 	assert.Equal(t, " UINT64", sf.ArgumentName)
