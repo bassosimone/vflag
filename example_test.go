@@ -348,11 +348,16 @@ func ExampleFlagSet_digHelpCustom() {
 	// Note: the backtick syntax (e.g., `URL_PATH`) in the first description paragraph
 	// overrides the default ArgumentName in help output. We also use @DEFAULT_VALUE@
 	// to show the default value in the help text.
-	fset.AddLongFlagDig(vflag.NewLongFlagStringOptional(
-		vflag.NewValueString(&httpsFlag), "https",
-		"Enable using DNS-over-HTTPS with optional `URL_PATH`.",
-		"Default: @DEFAULT_VALUE@.",
-	))
+	httpsValue := vflag.NewValueString(&httpsFlag)
+	fset.AddLongFlagDig(&vflag.LongFlag{
+		Description:  []string{"Enable using DNS-over-HTTPS with optional `URL_PATH`.", "Default: @DEFAULT_VALUE@."},
+		ArgumentName: "[=STRING]",
+		DefaultValue: httpsValue.String(),
+		Name:         "https",
+		MakeOption:   vflag.LongFlagMakeOptionWithOptionalValue,
+		Prefix:       "--",
+		Value:        httpsValue,
+	})
 
 	// Long-only flag for +short using AddLongFlagDig
 	fset.AddLongFlagDig(vflag.NewLongFlagBool(
@@ -434,11 +439,16 @@ func ExampleFlagSet_digHelpDefault() {
 	fset.AddShortFlag(vflag.NewShortFlagAutoHelp(vflag.ValueAutoHelp{}, 'h', "Show this help message and exit."))
 
 	// Long-only flag for +https with optional value using AddLongFlagDig
-	fset.AddLongFlagDig(vflag.NewLongFlagStringOptional(
-		vflag.NewValueString(&httpsFlag), "https",
-		"Enable using DNS-over-HTTPS with optional `URL_PATH`.",
-		"Default: @DEFAULT_VALUE@.",
-	))
+	httpsValue := vflag.NewValueString(&httpsFlag)
+	fset.AddLongFlagDig(&vflag.LongFlag{
+		Description:  []string{"Enable using DNS-over-HTTPS with optional `URL_PATH`.", "Default: @DEFAULT_VALUE@."},
+		ArgumentName: "[=STRING]",
+		DefaultValue: httpsValue.String(),
+		Name:         "https",
+		MakeOption:   vflag.LongFlagMakeOptionWithOptionalValue,
+		Prefix:       "--",
+		Value:        httpsValue,
+	})
 
 	// Long-only flag for +short using AddLongFlagDig
 	fset.AddLongFlagDig(vflag.NewLongFlagBool(
@@ -552,11 +562,16 @@ func ExampleFlagSet_digSuccess() {
 	fset.AddShortFlag(vflag.NewShortFlagAutoHelp(vflag.ValueAutoHelp{}, 'h', "Show this help message and exit."))
 
 	// Long-only flag for +https with optional value using AddLongFlagDig
-	fset.AddLongFlagDig(vflag.NewLongFlagStringOptional(
-		vflag.NewValueString(&httpsFlag), "https",
-		"Enable using DNS-over-HTTPS with optional `URL_PATH`.",
-		"Default: @DEFAULT_VALUE@.",
-	))
+	httpsValue := vflag.NewValueString(&httpsFlag)
+	fset.AddLongFlagDig(&vflag.LongFlag{
+		Description:  []string{"Enable using DNS-over-HTTPS with optional `URL_PATH`.", "Default: @DEFAULT_VALUE@."},
+		ArgumentName: "[=STRING]",
+		DefaultValue: httpsValue.String(),
+		Name:         "https",
+		MakeOption:   vflag.LongFlagMakeOptionWithOptionalValue,
+		Prefix:       "--",
+		Value:        httpsValue,
+	})
 
 	// Long-only flag for +short using AddLongFlagDig
 	fset.AddLongFlagDig(vflag.NewLongFlagBool(
@@ -791,7 +806,7 @@ func ExampleFlagSet_goHelpCustom() {
 	)
 
 	// Long-only flags with `-` prefix (Go style) using AddLongFlag
-	countLongFlag := vflag.NewLongFlagInt64Required(
+	countLongFlag := vflag.NewLongFlagInt64(
 		vflag.NewValueInt64(&countFlag), "count", "Run tests `N` times.", "Default: @DEFAULT_VALUE@.",
 	)
 	countLongFlag.Prefix = "-"
@@ -886,7 +901,7 @@ func ExampleFlagSet_goHelpDefault() {
 	)
 
 	// Long-only flags with `-` prefix (Go style) using AddLongFlag
-	countLongFlag := vflag.NewLongFlagInt64Required(
+	countLongFlag := vflag.NewLongFlagInt64(
 		vflag.NewValueInt64(&countFlag), "count", "Run tests `N` times.",
 	)
 	countLongFlag.Prefix = "-"
@@ -967,7 +982,7 @@ func ExampleFlagSet_goSuccess() {
 	)
 
 	// Long-only flags with `-` prefix (Go style) using AddLongFlag
-	countLongFlag := vflag.NewLongFlagInt64Required(
+	countLongFlag := vflag.NewLongFlagInt64(
 		vflag.NewValueInt64(&countFlag), "count", "Run tests `N` times.",
 	)
 	countLongFlag.Prefix = "-"

@@ -25,7 +25,7 @@ import (
 // The placeholder @DEFAULT_VALUE@ in Description entries is replaced with the
 // current default value (via Value.String()) when printing help.
 //
-// Construct using [NewLongFlagBool], [NewLongFlagStringRequired], etc.
+// Construct using [NewLongFlagBool], [NewLongFlagString], etc.
 type LongFlag struct {
 	// Description contains the flag description paragraphs to use in the help.
 	Description []string
@@ -154,13 +154,13 @@ func LongFlagMakeOptionWithOptionalValue(fx *LongFlag) *flagparser.Option {
 	}
 }
 
-// NewLongFlagDurationRequired constructs a new [*LongFlag] bound to a [ValueDuration].
+// NewLongFlagDuration constructs a new [*LongFlag] bound to a [ValueDuration].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` DURATION` by default.
-func NewLongFlagDurationRequired(value ValueDuration, name string, helpText ...string) *LongFlag {
+func NewLongFlagDuration(value ValueDuration, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " DURATION",
@@ -171,13 +171,13 @@ func NewLongFlagDurationRequired(value ValueDuration, name string, helpText ...s
 	}
 }
 
-// NewLongFlagFloat64Required constructs a new [*LongFlag] bound to a [ValueFloat64].
+// NewLongFlagFloat64 constructs a new [*LongFlag] bound to a [ValueFloat64].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` FLOAT64` by default.
-func NewLongFlagFloat64Required(value ValueFloat64, name string, helpText ...string) *LongFlag {
+func NewLongFlagFloat64(value ValueFloat64, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " FLOAT64",
@@ -188,13 +188,13 @@ func NewLongFlagFloat64Required(value ValueFloat64, name string, helpText ...str
 	}
 }
 
-// NewLongFlagIntRequired constructs a new [*LongFlag] bound to a [ValueInt].
+// NewLongFlagInt constructs a new [*LongFlag] bound to a [ValueInt].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` INT` by default.
-func NewLongFlagIntRequired(value ValueInt, name string, helpText ...string) *LongFlag {
+func NewLongFlagInt(value ValueInt, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " INT",
@@ -205,13 +205,13 @@ func NewLongFlagIntRequired(value ValueInt, name string, helpText ...string) *Lo
 	}
 }
 
-// NewLongFlagInt8Required constructs a new [*LongFlag] bound to a [ValueInt8].
+// NewLongFlagInt8 constructs a new [*LongFlag] bound to a [ValueInt8].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` INT8` by default.
-func NewLongFlagInt8Required(value ValueInt8, name string, helpText ...string) *LongFlag {
+func NewLongFlagInt8(value ValueInt8, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " INT8",
@@ -222,13 +222,13 @@ func NewLongFlagInt8Required(value ValueInt8, name string, helpText ...string) *
 	}
 }
 
-// NewLongFlagInt16Required constructs a new [*LongFlag] bound to a [ValueInt16].
+// NewLongFlagInt16 constructs a new [*LongFlag] bound to a [ValueInt16].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` INT16` by default.
-func NewLongFlagInt16Required(value ValueInt16, name string, helpText ...string) *LongFlag {
+func NewLongFlagInt16(value ValueInt16, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " INT16",
@@ -239,13 +239,13 @@ func NewLongFlagInt16Required(value ValueInt16, name string, helpText ...string)
 	}
 }
 
-// NewLongFlagInt32Required constructs a new [*LongFlag] bound to a [ValueInt32].
+// NewLongFlagInt32 constructs a new [*LongFlag] bound to a [ValueInt32].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` INT32` by default.
-func NewLongFlagInt32Required(value ValueInt32, name string, helpText ...string) *LongFlag {
+func NewLongFlagInt32(value ValueInt32, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " INT32",
@@ -256,13 +256,13 @@ func NewLongFlagInt32Required(value ValueInt32, name string, helpText ...string)
 	}
 }
 
-// NewLongFlagInt64Required constructs a new [*LongFlag] bound to a [ValueInt64].
+// NewLongFlagInt64 constructs a new [*LongFlag] bound to a [ValueInt64].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` INT64` by default.
-func NewLongFlagInt64Required(value ValueInt64, name string, helpText ...string) *LongFlag {
+func NewLongFlagInt64(value ValueInt64, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " INT64",
@@ -273,13 +273,13 @@ func NewLongFlagInt64Required(value ValueInt64, name string, helpText ...string)
 	}
 }
 
-// NewLongFlagStringRequired constructs a new [*LongFlag] bound to a [ValueString].
+// NewLongFlagString constructs a new [*LongFlag] bound to a [ValueString].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` STRING` by default.
-func NewLongFlagStringRequired(value ValueString, name string, helpText ...string) *LongFlag {
+func NewLongFlagString(value ValueString, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " STRING",
@@ -290,36 +290,13 @@ func NewLongFlagStringRequired(value ValueString, name string, helpText ...strin
 	}
 }
 
-// NewLongFlagStringOptional constructs a new [*LongFlag] bound to a [ValueString]
-// with an optional value.
-//
-// When the flag is present without a value (e.g., `--https`), the initial value
-// of the bound variable is used. When a value is provided with `=` syntax
-// (e.g., `--https=/custom`), that value is used instead.
-//
-// This constructor sets the flag prefix to `--`. If you need a different prefix,
-// update the `Prefix` field in the returned [*LongFlag] structure.
-//
-// The ArgumentName is set to `[=STRING]` by default to indicate the value is optional.
-func NewLongFlagStringOptional(value ValueString, name string, helpText ...string) *LongFlag {
-	return &LongFlag{
-		Description:  helpText,
-		ArgumentName: "[=STRING]",
-		DefaultValue: value.String(),
-		Name:         name,
-		MakeOption:   LongFlagMakeOptionWithOptionalValue,
-		Prefix:       "--",
-		Value:        value,
-	}
-}
-
-// NewLongFlagStringSliceRequired constructs a new [*LongFlag] bound to a [ValueStringSlice].
+// NewLongFlagStringSlice constructs a new [*LongFlag] bound to a [ValueStringSlice].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` STRING` by default.
-func NewLongFlagStringSliceRequired(value ValueStringSlice, name string, helpText ...string) *LongFlag {
+func NewLongFlagStringSlice(value ValueStringSlice, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " STRING",
@@ -330,13 +307,13 @@ func NewLongFlagStringSliceRequired(value ValueStringSlice, name string, helpTex
 	}
 }
 
-// NewLongFlagUintRequired constructs a new [*LongFlag] bound to a [ValueUint].
+// NewLongFlagUint constructs a new [*LongFlag] bound to a [ValueUint].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` UINT` by default.
-func NewLongFlagUintRequired(value ValueUint, name string, helpText ...string) *LongFlag {
+func NewLongFlagUint(value ValueUint, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " UINT",
@@ -347,13 +324,13 @@ func NewLongFlagUintRequired(value ValueUint, name string, helpText ...string) *
 	}
 }
 
-// NewLongFlagUint8Required constructs a new [*LongFlag] bound to a [ValueUint8].
+// NewLongFlagUint8 constructs a new [*LongFlag] bound to a [ValueUint8].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` UINT8` by default.
-func NewLongFlagUint8Required(value ValueUint8, name string, helpText ...string) *LongFlag {
+func NewLongFlagUint8(value ValueUint8, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " UINT8",
@@ -364,13 +341,13 @@ func NewLongFlagUint8Required(value ValueUint8, name string, helpText ...string)
 	}
 }
 
-// NewLongFlagUint16Required constructs a new [*LongFlag] bound to a [ValueUint16].
+// NewLongFlagUint16 constructs a new [*LongFlag] bound to a [ValueUint16].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` UINT16` by default.
-func NewLongFlagUint16Required(value ValueUint16, name string, helpText ...string) *LongFlag {
+func NewLongFlagUint16(value ValueUint16, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " UINT16",
@@ -381,13 +358,13 @@ func NewLongFlagUint16Required(value ValueUint16, name string, helpText ...strin
 	}
 }
 
-// NewLongFlagUint32Required constructs a new [*LongFlag] bound to a [ValueUint32].
+// NewLongFlagUint32 constructs a new [*LongFlag] bound to a [ValueUint32].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` UINT32` by default.
-func NewLongFlagUint32Required(value ValueUint32, name string, helpText ...string) *LongFlag {
+func NewLongFlagUint32(value ValueUint32, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " UINT32",
@@ -398,13 +375,13 @@ func NewLongFlagUint32Required(value ValueUint32, name string, helpText ...strin
 	}
 }
 
-// NewLongFlagUint64Required constructs a new [*LongFlag] bound to a [ValueUInt64].
+// NewLongFlagUint64 constructs a new [*LongFlag] bound to a [ValueUInt64].
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
 //
 // The ArgumentName is set to ` UINT64` by default.
-func NewLongFlagUint64Required(value ValueUInt64, name string, helpText ...string) *LongFlag {
+func NewLongFlagUint64(value ValueUInt64, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
 		ArgumentName: " UINT64",

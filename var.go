@@ -46,7 +46,7 @@ func (fs *FlagSet) DurationVar(vp *time.Duration, shortName byte, longName strin
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagDuration(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagDurationRequired(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagDuration(value, longName, helpText...))
 	}
 }
 
@@ -60,7 +60,7 @@ func (fs *FlagSet) Float64Var(vp *float64, shortName byte, longName string, help
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagFloat64(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagFloat64Required(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagFloat64(value, longName, helpText...))
 	}
 }
 
@@ -74,7 +74,7 @@ func (fs *FlagSet) IntVar(vp *int, shortName byte, longName string, helpText ...
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagInt(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagIntRequired(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagInt(value, longName, helpText...))
 	}
 }
 
@@ -88,7 +88,7 @@ func (fs *FlagSet) Int8Var(vp *int8, shortName byte, longName string, helpText .
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagInt8(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagInt8Required(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagInt8(value, longName, helpText...))
 	}
 }
 
@@ -102,7 +102,7 @@ func (fs *FlagSet) Int16Var(vp *int16, shortName byte, longName string, helpText
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagInt16(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagInt16Required(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagInt16(value, longName, helpText...))
 	}
 }
 
@@ -116,7 +116,7 @@ func (fs *FlagSet) Int32Var(vp *int32, shortName byte, longName string, helpText
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagInt32(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagInt32Required(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagInt32(value, longName, helpText...))
 	}
 }
 
@@ -130,7 +130,7 @@ func (fs *FlagSet) Int64Var(vp *int64, shortName byte, longName string, helpText
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagInt64(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagInt64Required(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagInt64(value, longName, helpText...))
 	}
 }
 
@@ -144,7 +144,7 @@ func (fs *FlagSet) StringVar(vp *string, shortName byte, longName string, helpTe
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagString(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagStringRequired(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagString(value, longName, helpText...))
 	}
 }
 
@@ -158,7 +158,7 @@ func (fs *FlagSet) StringSliceVar(vp *[]string, shortName byte, longName string,
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagStringSlice(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagStringSliceRequired(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagStringSlice(value, longName, helpText...))
 	}
 }
 
@@ -172,7 +172,7 @@ func (fs *FlagSet) UintVar(vp *uint, shortName byte, longName string, helpText .
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagUint(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagUintRequired(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagUint(value, longName, helpText...))
 	}
 }
 
@@ -186,7 +186,7 @@ func (fs *FlagSet) Uint8Var(vp *uint8, shortName byte, longName string, helpText
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagUint8(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagUint8Required(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagUint8(value, longName, helpText...))
 	}
 }
 
@@ -200,7 +200,7 @@ func (fs *FlagSet) Uint16Var(vp *uint16, shortName byte, longName string, helpTe
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagUint16(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagUint16Required(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagUint16(value, longName, helpText...))
 	}
 }
 
@@ -214,7 +214,7 @@ func (fs *FlagSet) Uint32Var(vp *uint32, shortName byte, longName string, helpTe
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagUint32(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagUint32Required(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagUint32(value, longName, helpText...))
 	}
 }
 
@@ -228,6 +228,6 @@ func (fs *FlagSet) Uint64Var(vp *uint64, shortName byte, longName string, helpTe
 		fs.ShortFlags = append(fs.ShortFlags, NewShortFlagUint64(value, shortName, helpText...))
 	}
 	if longName != "" {
-		fs.LongFlags = append(fs.LongFlags, NewLongFlagUint64Required(value, longName, helpText...))
+		fs.LongFlags = append(fs.LongFlags, NewLongFlagUint64(value, longName, helpText...))
 	}
 }
