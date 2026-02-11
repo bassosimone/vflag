@@ -53,7 +53,7 @@ type ShortFlag struct {
 func argumentNameFromDocsOrDefault(description []string, defaultValue string) (output string) {
 	output = defaultValue
 	if len(description) > 0 {
-		re := regexp.MustCompile("`([A-Z0-9_-]+)`")
+		re := regexp.MustCompile("`([A-Z0-9_:-]+)`")
 		m := re.FindStringSubmatch(description[0])
 		if len(m) > 1 {
 			output = m[1]
