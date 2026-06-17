@@ -3,15 +3,15 @@ module github.com/bassosimone/vflag
 go 1.25.5
 
 require (
-	github.com/bassosimone/flagparser v0.0.0-20260510230626-4d62c3d9c5ab
-	github.com/bassosimone/must v0.0.0-20260506051955-56ca05051aad
-	github.com/bassosimone/runtimex v0.0.0-20260430082757-ec3a7b516e79
-	github.com/bassosimone/textwrap v0.0.0-20260426210759-497ff9a64d39
+	github.com/bassosimone/flagparser v0.0.0-20260615115304-f1a0193b86ca
+	github.com/bassosimone/must v0.0.0-20260617064914-34c9ef153034
+	github.com/bassosimone/runtimex v0.0.0-20260615112505-ee72c4f0769e
+	github.com/bassosimone/textwrap v0.0.0-20260615113929-f1a1c54eeabd
 	github.com/stretchr/testify v1.11.1
 )
 
 require (
-	github.com/bassosimone/flagscanner v0.0.0-20260426205602-a02f7a8e1306 // indirect
+	github.com/bassosimone/flagscanner v0.0.0-20260615112222-a68f4ee842c2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
