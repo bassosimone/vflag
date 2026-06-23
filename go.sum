@@ -8,8 +8,8 @@ github.com/bassosimone/must v0.0.0-20260617064914-34c9ef153034 h1:yAkSXiasCHsvJX
 github.com/bassosimone/must v0.0.0-20260617064914-34c9ef153034/go.mod h1:X8favkED/wBR4BjopDnUOFraGSn/CDvfzZQ2DIwoTXI=
 github.com/bassosimone/runtimex v0.0.0-20260615112505-ee72c4f0769e h1:J3ERL+Iben+Aog/hfy+qcRuhzH6dZceq/v1GuEyqlPA=
 github.com/bassosimone/runtimex v0.0.0-20260615112505-ee72c4f0769e/go.mod h1:GDr46yuJzuDkzOMI1/9Voo3s7VmYBU/6pkuaI5FR7gE=
-github.com/bassosimone/textwrap v0.0.0-20260615113929-f1a1c54eeabd h1:XVPtysNIdFQSTqkXPO4TLaX1wnN96yzsLC8cR5bCK70=
-github.com/bassosimone/textwrap v0.0.0-20260615113929-f1a1c54eeabd/go.mod h1:SroxjmxXkIVaeta+FgkXfDe0NJQ8of3HOTevtTvLsKA=
+github.com/bassosimone/textwrap v0.0.0-20260623161521-ecf2c54815db h1:rN1QctJhpbovn64oa/nt5b8fHuFevkXLOw4244XCGKo=
+github.com/bassosimone/textwrap v0.0.0-20260623161521-ecf2c54815db/go.mod h1:SroxjmxXkIVaeta+FgkXfDe0NJQ8of3HOTevtTvLsKA=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
