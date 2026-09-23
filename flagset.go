@@ -77,7 +77,7 @@ type FlagSet struct {
 
 	// ErrorHandling is the [ErrorHandling] policy.
 	//
-	// [NewFlagSet] initializes this field to [ContinueOnError].
+	// [NewFlagSet] initializes this field to its handling argument.
 	ErrorHandling ErrorHandling
 
 	// Exit is the function to call with the [ExitOnError] policy.
