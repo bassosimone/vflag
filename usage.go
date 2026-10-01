@@ -170,23 +170,10 @@ type usageFlag struct {
 	description string
 }
 
-// PrintUsageString implements [vflag.UsagePrinter].
+// PrintFlags prints the flags configured inside `fset`.
 //
 // This method panics on I/O error.
-func (up *DefaultUsagePrinter) PrintUsageString(fset *FlagSet, w io.Writer) {
-	// ## Usage
-	up.div0(w, "Usage")
-	up.div0(w, fmt.Sprintf("    %s%s%s", fset.ProgramName, up.flagsName(fset), up.positionalArgumentsUsage(fset)))
-
-	// ## Description
-	if description := up.Description; len(description) > 0 {
-		up.div0(w, "Description")
-		for _, entry := range description {
-			up.div1(w, entry)
-		}
-	}
-
-	// ## Flags
+func (up *DefaultUsagePrinter) PrintFlags(fset *FlagSet, w io.Writer) {
 	if len(fset.ShortFlags) > 0 || len(fset.LongFlags) > 0 {
 		// Create a list of all the usage flags
 		uflags := make([]*usageFlag, 0, len(fset.ShortFlags)+len(fset.LongFlags))
@@ -240,6 +227,26 @@ func (up *DefaultUsagePrinter) PrintUsageString(fset *FlagSet, w io.Writer) {
 			must.Fprintf(w, "%s", uflag.description)
 		}
 	}
+}
+
+// PrintUsageString implements [vflag.UsagePrinter].
+//
+// This method panics on I/O error.
+func (up *DefaultUsagePrinter) PrintUsageString(fset *FlagSet, w io.Writer) {
+	// ## Usage
+	up.div0(w, "Usage")
+	up.div0(w, fmt.Sprintf("    %s%s%s", fset.ProgramName, up.flagsName(fset), up.positionalArgumentsUsage(fset)))
+
+	// ## Description
+	if description := up.Description; len(description) > 0 {
+		up.div0(w, "Description")
+		for _, entry := range description {
+			up.div1(w, entry)
+		}
+	}
+
+	// ## Flags
+	up.PrintFlags(fset, w)
 
 	// ## Example
 	if example := up.Example; len(example) > 0 {
