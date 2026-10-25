@@ -121,7 +121,7 @@ func ExampleFlagSet_curlHelpCustom() {
 	//
 	// Flags
 	//
-	//     -f, --fail[=true|false]
+	//     -f, --fail
 	//
 	//         Fail fast with no output at all on server errors.
 	//
@@ -131,7 +131,7 @@ func ExampleFlagSet_curlHelpCustom() {
 	//
 	//         Show this help message and exit.
 	//
-	//     -L, --location[=true|false]
+	//     -L, --location
 	//
 	//         Follow HTTP redirections.
 	//
@@ -145,13 +145,13 @@ func ExampleFlagSet_curlHelpCustom() {
 	//
 	//         Default: `-`.
 	//
-	//     -S, --show-error[=true|false]
+	//     -S, --show-error
 	//
 	//         Show an error message, even when silent, on failure.
 	//
 	//         Default: `false`.
 	//
-	//     -s, --silent[=true|false]
+	//     -s, --silent
 	//
 	//         Silent or quiet mode.
 	//
@@ -213,7 +213,7 @@ func ExampleFlagSet_curlHelpDefault() {
 	//
 	// Flags
 	//
-	//     -f, --fail[=true|false]
+	//     -f, --fail
 	//
 	//         Fail fast with no output at all on server errors.
 	//
@@ -221,7 +221,7 @@ func ExampleFlagSet_curlHelpDefault() {
 	//
 	//         Show this help message and exit.
 	//
-	//     -L, --location[=true|false]
+	//     -L, --location
 	//
 	//         Follow HTTP redirections.
 	//
@@ -229,11 +229,11 @@ func ExampleFlagSet_curlHelpDefault() {
 	//
 	//         Write output to the given `FILE`.
 	//
-	//     -S, --show-error[=true|false]
+	//     -S, --show-error
 	//
 	//         Show an error message, even when silent, on failure.
 	//
-	//     -s, --silent[=true|false]
+	//     -s, --silent
 	//
 	//         Silent or quiet mode.
 }
@@ -406,7 +406,7 @@ func ExampleFlagSet_digHelpCustom() {
 	//
 	//         Default: /dns-query.
 	//
-	//     +short[=true|false]
+	//     +short
 	//
 	//         Write terse output.
 	//
@@ -491,7 +491,7 @@ func ExampleFlagSet_digHelpDefault() {
 	//
 	//         Default: /dns-query.
 	//
-	//     +short[=true|false]
+	//     +short
 	//
 	//         Write terse output.
 }
@@ -868,13 +868,13 @@ func ExampleFlagSet_goHelpCustom() {
 	//
 	//         Alias for -h.
 	//
-	//     -race[=true|false]
+	//     -race
 	//
 	//         Run tests using the race detector.
 	//
 	//         Default: false.
 	//
-	//     -v[=true|false]
+	//     -v
 	//
 	//         Verbose output.
 	//
@@ -957,11 +957,11 @@ func ExampleFlagSet_goHelpDefault() {
 	//
 	//         Alias for -h.
 	//
-	//     -race[=true|false]
+	//     -race
 	//
 	//         Run tests using the race detector.
 	//
-	//     -v[=true|false]
+	//     -v
 	//
 	//         Verbose output.
 }
@@ -1066,19 +1066,19 @@ func ExampleDefaultUsagePrinter_PrintFlags() {
 	// Output:
 	// Flags
 	//
-	//     --compressed[=true|false]
+	//     --compressed
 	//
 	//         Request a compressed response.
 	//
-	//     -k, --insecure[=true|false]
+	//     -k, --insecure
 	//
 	//         Skip TLS certificate verification.
 	//
-	//     -L, --location[=true|false]
+	//     -L, --location
 	//
 	//         Follow HTTP redirections.
 	//
-	//     --location-trusted[=true|false]
+	//     --location-trusted
 	//
 	//         Like `--location` but also send credentials to other hosts.
 	//
@@ -1090,7 +1090,7 @@ func ExampleDefaultUsagePrinter_PrintFlags() {
 	//
 	//         Silent or quiet mode.
 	//
-	//     -S, --show-error[=true|false]
+	//     -S, --show-error
 	//
 	//         Show an error message, even when silent, on failure.
 }

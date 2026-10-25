@@ -30,6 +30,12 @@ func TestShortFlagUsage(t *testing.T) {
 		assert.Equal(t, "-o FILE", sf.Usage())
 	})
 
+	t.Run("bool flag ignores backticks in description", func(t *testing.T) {
+		var v bool
+		sf := NewShortFlagBool(NewValueBool(&v), 'j', "Emit `JSON` output.")
+		assert.Equal(t, "-j", sf.Usage())
+	})
+
 	t.Run("custom prefix", func(t *testing.T) {
 		var v bool
 		sf := NewShortFlagBool(NewValueBool(&v), 'v', "Enable verbose output.")
@@ -78,6 +84,11 @@ func TestArgumentNameFromDocsOrDefault(t *testing.T) {
 		// When default doesn't have leading space, extraction is skipped
 		result := argumentNameFromDocsOrDefault([]string{"Write to `FILE`."}, "[=STRING]")
 		assert.Equal(t, "[=FILE]", result)
+	})
+
+	t.Run("flags without arguments use default", func(t *testing.T) {
+		result := argumentNameFromDocsOrDefault([]string{"Emit `JSON` output."}, "")
+		assert.Equal(t, "", result)
 	})
 }
 

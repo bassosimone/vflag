@@ -107,12 +107,10 @@ func LongFlagMakeOptionBool(fx *LongFlag) *flagparser.Option {
 //
 // This constructor sets the flag prefix to `--`. If you need a different prefix,
 // update the `Prefix` field in the returned [*LongFlag] structure.
-//
-// The ArgumentName is set to `[=true|false]` by default.
 func NewLongFlagBool(value ValueBool, name string, helpText ...string) *LongFlag {
 	return &LongFlag{
 		Description:  helpText,
-		ArgumentName: "[=true|false]",
+		ArgumentName: "",
 		Name:         name,
 		MakeOption:   LongFlagMakeOptionBool,
 		Prefix:       "--",

@@ -56,12 +56,11 @@ func argumentNameFromDocsOrDefault(description []string, defaultValue string) (o
 		re := regexp.MustCompile("`([A-Z0-9_:-]+)`")
 		m := re.FindStringSubmatch(description[0])
 		if len(m) > 1 {
-			output = m[1]
 			switch {
 			case strings.HasPrefix(defaultValue, " "):
-				output = " " + output
+				output = " " + m[1]
 			case strings.HasPrefix(defaultValue, "[=") && strings.HasSuffix(defaultValue, "]"):
-				output = "[=" + output + "]"
+				output = "[=" + m[1] + "]"
 			}
 		}
 	}

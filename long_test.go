@@ -12,10 +12,10 @@ import (
 )
 
 func TestLongFlagUsage(t *testing.T) {
-	t.Run("bool flag has optional argument", func(t *testing.T) {
+	t.Run("bool flag has no argument name", func(t *testing.T) {
 		var v bool
 		lf := NewLongFlagBool(NewValueBool(&v), "verbose", "Enable verbose output.")
-		assert.Equal(t, "--verbose[=true|false]", lf.Usage())
+		assert.Equal(t, "--verbose", lf.Usage())
 	})
 
 	t.Run("string flag has argument name", func(t *testing.T) {
@@ -30,11 +30,17 @@ func TestLongFlagUsage(t *testing.T) {
 		assert.Equal(t, "--output FILE", lf.Usage())
 	})
 
+	t.Run("bool flag ignores backticks in description", func(t *testing.T) {
+		var v bool
+		lf := NewLongFlagBool(NewValueBool(&v), "json", "Emit `JSON` output.")
+		assert.Equal(t, "--json", lf.Usage())
+	})
+
 	t.Run("custom prefix", func(t *testing.T) {
 		var v bool
 		lf := NewLongFlagBool(NewValueBool(&v), "verbose", "Enable verbose output.")
 		lf.Prefix = "+"
-		assert.Equal(t, "+verbose[=true|false]", lf.Usage())
+		assert.Equal(t, "+verbose", lf.Usage())
 	})
 }
 
@@ -109,7 +115,7 @@ func TestNewLongFlagBool(t *testing.T) {
 
 	assert.Equal(t, "verbose", lf.Name)
 	assert.Equal(t, "--", lf.Prefix)
-	assert.Equal(t, "[=true|false]", lf.ArgumentName)
+	assert.Equal(t, "", lf.ArgumentName)
 }
 
 func TestNewLongFlagDuration(t *testing.T) {

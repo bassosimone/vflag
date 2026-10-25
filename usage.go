@@ -112,7 +112,7 @@ const (
 //
 //	        Write output to the given file.
 //
-//	    -s, --silent[=true|false]
+//	    -s, --silent
 //
 //	        Disable emitting output.
 //

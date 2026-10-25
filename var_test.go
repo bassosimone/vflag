@@ -71,7 +71,7 @@ func TestFlagSetVarBool(t *testing.T) {
 		long := fs.LongFlags[0]
 		assert.Equal(t, "verbose", long.Name)
 		assert.Equal(t, "--", long.Prefix)
-		assert.Equal(t, "[=true|false]", long.ArgumentName)
+		assert.Equal(t, "", long.ArgumentName)
 
 		// Verify shared value by setting one and checking the other
 		require.NoError(t, short.Value.Set("true"))
