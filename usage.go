@@ -7,8 +7,10 @@
 package vflag
 
 import (
+	"cmp"
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 
 	"github.com/bassosimone/must"
@@ -163,6 +165,9 @@ type usageFlag struct {
 	// synpsis contains the line describing the flag usage.
 	synopsis string
 
+	// sortKey is the key used for sorting flags.
+	sortKey string
+
 	// aliases contains the synopsis of the flag aliases.
 	aliases []string
 
@@ -171,6 +176,10 @@ type usageFlag struct {
 }
 
 // PrintFlags prints the flags configured inside `fset`.
+//
+// We sort the flags alphabetically, ignoring case and prefix. A flag having both
+// short and long names sorts by its short name. Flags whose names only differ by
+// case appear in the order in which they have been added.
 //
 // This method panics on I/O error.
 func (up *DefaultUsagePrinter) PrintFlags(fset *FlagSet, w io.Writer) {
@@ -187,6 +196,7 @@ func (up *DefaultUsagePrinter) PrintFlags(fset *FlagSet, w io.Writer) {
 			description = strings.ReplaceAll(description, "@DEFAULT_VALUE@", fx.Value.String())
 			uflags = append(uflags, &usageFlag{
 				synopsis:    fx.Usage(),
+				sortKey:     strings.ToLower(string(fx.Name)),
 				description: description,
 			})
 		}
@@ -200,6 +210,7 @@ func (up *DefaultUsagePrinter) PrintFlags(fset *FlagSet, w io.Writer) {
 			description = strings.ReplaceAll(description, "@DEFAULT_VALUE@", fx.Value.String())
 			uflags = append(uflags, &usageFlag{
 				synopsis:    fx.Usage(),
+				sortKey:     strings.ToLower(fx.Name),
 				description: description,
 			})
 		}
@@ -215,6 +226,11 @@ func (up *DefaultUsagePrinter) PrintFlags(fset *FlagSet, w io.Writer) {
 			ref.aliases = append(ref.aliases, uflag.synopsis)
 			uflag.synopsis, uflag.description = "", ""
 		}
+
+		// Sort alphabetically by the flag key
+		slices.SortStableFunc(uflags, func(a, b *usageFlag) int {
+			return cmp.Compare(a.sortKey, b.sortKey)
+		})
 
 		// Print the flags with non-empty descriptions
 		up.div0(w, "Flags")

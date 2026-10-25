@@ -127,15 +127,15 @@ func ExampleFlagSet_curlHelpCustom() {
 	//
 	//         Default: `false`.
 	//
+	//     -h, --help
+	//
+	//         Show this help message and exit.
+	//
 	//     -L, --location[=true|false]
 	//
 	//         Follow HTTP redirections.
 	//
 	//         Default: `false`.
-	//
-	//     -h, --help
-	//
-	//         Show this help message and exit.
 	//
 	//     -o FILE, --output FILE
 	//
@@ -217,13 +217,13 @@ func ExampleFlagSet_curlHelpDefault() {
 	//
 	//         Fail fast with no output at all on server errors.
 	//
-	//     -L, --location[=true|false]
-	//
-	//         Follow HTTP redirections.
-	//
 	//     -h, --help
 	//
 	//         Show this help message and exit.
+	//
+	//     -L, --location[=true|false]
+	//
+	//         Follow HTTP redirections.
 	//
 	//     -o FILE, --output FILE
 	//
@@ -1030,4 +1030,67 @@ func ExampleFlagSet_goSuccess() {
 	// vFlag: true
 	// ---
 	// positional arguments: [./...]
+}
+
+// This example shows how [*DefaultUsagePrinter.PrintFlags] sorts flags.
+//
+// We sort alphabetically ignoring case and the flag prefix. We sort a flag
+// with both short and long names using the short name (e.g., `-k, --insecure`
+// sorts as `k`). Flags whose names only differ by case (e.g., `-S` and `-s`)
+// appear in the order in which they have been added.
+func ExampleDefaultUsagePrinter_PrintFlags() {
+	// Create an empty flag set
+	fset := vflag.NewFlagSet("curl", vflag.ExitOnError)
+
+	// Add the supported flags in no particular order
+	var (
+		compressedFlag      = false
+		insecureFlag        = false
+		locationFlag        = false
+		locationTrustedFlag = false
+		outputFlag          = "-"
+		showErrorFlag       = false
+		silentFlag          = false
+	)
+	fset.BoolVar(&locationTrustedFlag, 0, "location-trusted", "Like `--location` but also send credentials to other hosts.")
+	fset.BoolVar(&silentFlag, 's', "", "Silent or quiet mode.")
+	fset.StringVar(&outputFlag, 'o', "output", "Write output to the given `FILE`.")
+	fset.BoolVar(&showErrorFlag, 'S', "show-error", "Show an error message, even when silent, on failure.")
+	fset.BoolVar(&insecureFlag, 'k', "insecure", "Skip TLS certificate verification.")
+	fset.BoolVar(&compressedFlag, 0, "compressed", "Request a compressed response.")
+	fset.BoolVar(&locationFlag, 'L', "location", "Follow HTTP redirections.")
+
+	// Print the flags
+	vflag.NewDefaultUsagePrinter().PrintFlags(fset, os.Stdout)
+
+	// Output:
+	// Flags
+	//
+	//     --compressed[=true|false]
+	//
+	//         Request a compressed response.
+	//
+	//     -k, --insecure[=true|false]
+	//
+	//         Skip TLS certificate verification.
+	//
+	//     -L, --location[=true|false]
+	//
+	//         Follow HTTP redirections.
+	//
+	//     --location-trusted[=true|false]
+	//
+	//         Like `--location` but also send credentials to other hosts.
+	//
+	//     -o FILE, --output FILE
+	//
+	//         Write output to the given `FILE`.
+	//
+	//     -s
+	//
+	//         Silent or quiet mode.
+	//
+	//     -S, --show-error[=true|false]
+	//
+	//         Show an error message, even when silent, on failure.
 }
